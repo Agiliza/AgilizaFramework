@@ -59,18 +59,15 @@ class HttpResponse(metaclass=abc.ABCMeta):
     def status_text(self):
         pass
 
-    @property
-    def status(self):
-        return '%s %s' % (self.status_code, self.status_text)
-
     def __init__(self, content='', content_type=None):
         # _headers is a mapping of the lower-case name to the original
         # case of the header (required for working with legacy systems)
         # and the header value.
         self._headers = {}
-        self._charset = 'utf-8' # TODO: settings
+        self._charset = 'utf-8' # TODO settings
+        default_content_type = 'text/plain' # TODO settings
         if not content_type:
-            content_type = "%s; charset=%s" % ('text/plain', self._charset)
+            content_type = "%s; charset=%s" % (default_content_type, self._charset)
         if not isinstance(content, str) and hasattr(content, '__iter__'):
             self._container = content
             self._is_string = False
@@ -80,6 +77,18 @@ class HttpResponse(metaclass=abc.ABCMeta):
         self.cookies = SimpleCookie()
 
         self['Content-Type'] = content_type
+
+    @property
+    def status(self):
+        return '%s %s' % (self.status_code, self.status_text)
+
+    @property
+    def headers(self):
+        response_headers = [
+            (key, value) for key, value in self._headers.values()
+        ]
+        # TODO Set-Cookie
+        return response_headers
 
     def __setitem__(self, header, value):
         self._headers[header.lower()] = (header, value)
@@ -92,11 +101,3 @@ class HttpResponse(metaclass=abc.ABCMeta):
 
     def __getitem__(self, header):
         return self._headers[header.lower()][1]
-
-    def headers(self):
-        response_headers = [
-            (str(key).encode('utf-8'), str(value).encode('utf-8'))
-            for key, value in self._headers.values()
-        ]
-        # TODO Set-Cookie
-        return response_headers
