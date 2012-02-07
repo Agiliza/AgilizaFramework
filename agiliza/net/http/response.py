@@ -44,6 +44,7 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5,
 
 """
 import abc
+from http.cookies import SimpleCookie
 
 
 class HttpResponse(metaclass=abc.ABCMeta):
@@ -61,3 +62,41 @@ class HttpResponse(metaclass=abc.ABCMeta):
     @property
     def status(self):
         return '%s %s' % (self.status_code, self.status_text)
+
+    def __init__(self, content='', content_type=None):
+        # _headers is a mapping of the lower-case name to the original
+        # case of the header (required for working with legacy systems)
+        # and the header value.
+        self._headers = {}
+        self._charset = 'utf-8' # TODO: settings
+        if not content_type:
+            content_type = "%s; charset=%s" % ('text/plain', self._charset)
+        if not isinstance(content, str) and hasattr(content, '__iter__'):
+            self._container = content
+            self._is_string = False
+        else:
+            self._container = [content]
+            self._is_string = True
+        self.cookies = SimpleCookie()
+
+        self['Content-Type'] = content_type
+
+    def __setitem__(self, header, value):
+        self._headers[header.lower()] = (header, value)
+
+    def __delitem__(self, header):
+        try:
+            del self._headers[header.lower()]
+        except KeyError:
+            pass
+
+    def __getitem__(self, header):
+        return self._headers[header.lower()][1]
+
+    def headers(self):
+        response_headers = [
+            (str(key).encode('utf-8'), str(value).encode('utf-8'))
+            for key, value in self._headers.values()
+        ]
+        # TODO Set-Cookie
+        return response_headers

@@ -31,6 +31,10 @@ class HttpResponseMethodNotAllowed(HttpResponse):
     status_code = 405
     status_text = 'METHOD NOT ALLOWED'
 
+    def __init__(self, permitted_methods):
+        super(HttpResponseMethodNotAllowed, self).__init__()
+        self['Allow'] = ', '.join(permitted_methods)
+
 
 class HttpResponseNotAcceptable(HttpResponse):
     status_code = 406

@@ -2,7 +2,7 @@
 from agiliza.net.http.response import HttpResponse
 
 
-class HttpResponseOk(object):
+class HttpResponseOk(HttpResponse):
     status_code = 200
     status_text = 'OK'
 
