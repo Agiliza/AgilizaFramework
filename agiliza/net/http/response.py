@@ -64,10 +64,11 @@ class HttpResponse(metaclass=abc.ABCMeta):
         # case of the header (required for working with legacy systems)
         # and the header value.
         self._headers = {}
-        self._charset = 'utf-8' # TODO settings
-        default_content_type = 'text/plain' # TODO settings
+        self._charset = 'utf-8'  # TODO settings
+        default_content_type = 'text/plain'  # TODO settings
         if not content_type:
-            content_type = "%s; charset=%s" % (default_content_type, self._charset)
+            content_type = "%s; charset=%s" % (default_content_type,
+                self._charset)
         if not isinstance(content, str) and hasattr(content, '__iter__'):
             self._container = content
             self._is_string = False
@@ -89,6 +90,11 @@ class HttpResponse(metaclass=abc.ABCMeta):
         ]
         # TODO Set-Cookie
         return response_headers
+
+    @property
+    def body(self):
+        #ret = [ ("REQUEST_METHOD: %s" % request.method).encode('utf-8') ]
+        return []
 
     def __setitem__(self, header, value):
         self._headers[header.lower()] = (header, value)

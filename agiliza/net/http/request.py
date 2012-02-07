@@ -38,7 +38,11 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5 and
     User-Agent               ; Section 14.43
 
 """
+import abc
 
-class HttpRequest(object):
+
+class HttpRequest(metaclass=abc.ABCMeta):
     """A basic HTTP request."""
-    pass
+    @abc.abstractmethod
+    def is_secure(self):
+        pass
