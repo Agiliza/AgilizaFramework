@@ -38,6 +38,15 @@ class WSGIRequest(http.HttpRequest):
         return 'wsgi.url_scheme' in self.environ \
             and self.environ['wsgi.url_scheme'] == 'https'
 
+    def get_host(environ):
+        if 'HTTP_HOST' in environ:
+            return environ['HTTP_HOST']
+        result = environ['SERVER_NAME']
+        if (environ['wsgi.url_scheme'], environ['SERVER_PORT']) not \
+           in ((b'https', b'443'), (b'http', b'80')):
+            result += b':' + environ['SERVER_PORT']
+        return result
+
 
 class WSGIHandler(base.BaseHandler):
     def __call__(self, environ, start_response):

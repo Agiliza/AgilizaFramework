@@ -46,3 +46,7 @@ class HttpRequest(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def is_secure(self):
         pass
+
+    @abc.abstractmethod
+    def get_host(self):
+        pass
