@@ -41,12 +41,43 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5 and
 import abc
 
 
+
 class HttpRequest(metaclass=abc.ABCMeta):
     """A basic HTTP request."""
-    @abc.abstractmethod
-    def is_secure(self):
-        pass
+    @abc.abstractproperty
+    def method(self): pass
+
+    @abc.abstractproperty
+    def path_info(self): pass
+
+    @abc.abstractproperty
+    def query_string(self): pass
+
+    @abc.abstractproperty
+    def script_name(self): pass
 
     @abc.abstractmethod
+    def is_secure(self): pass
+
+    def is_ajax(self):
+        """Alias for :attr:`is_xhr`. "Ajax" is not the right term."""
+        return self.is_xhr()
+
+    def is_xhr(self):
+        """
+        True if the request was triggered by a XMLHttpRequest. This only
+        works with JavaScript libraries that support the
+        `X-Requested-With` header (most of the popular libraries do).
+        """
+        requested_with = self.META.get('HTTP_X_REQUESTED_WITH', '')
+        return requested_with.lower() == 'xmlhttprequest'
+
     def get_host(self):
-        pass
+        if 'HTTP_HOST' in self.META:
+            return self.META['HTTP_HOST']
+        result = self.META['SERVER_NAME']
+        if(self.META['wsgi.url_scheme'],
+           self.META['SERVER_PORT']) not \
+           in ((b'https', b'443'), (b'http', b'80')):
+            result += b':' + self.META['SERVER_PORT']
+        return result

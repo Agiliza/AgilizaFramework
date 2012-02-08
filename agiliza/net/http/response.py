@@ -45,6 +45,7 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5,
 """
 import abc
 from http.cookies import SimpleCookie
+from agiliza.core.datastructures import MultiValueDict
 
 
 class HttpResponse(metaclass=abc.ABCMeta):

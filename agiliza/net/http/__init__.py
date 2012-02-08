@@ -23,3 +23,5 @@ from agiliza.net.http.successful import (HttpResponseOk,
     HttpResponseCreated, HttpResponseAccepted,
     HttpResponseNonAuthoritativeInformation, HttpResponseNoContent,
     HttpResponseResetContent, HttpResponsePartialContent)
+
+HTTP_METHODS = ('GET', 'POST', 'UPDATE', 'DELETE', 'HEAD', 'OPTIONS')
