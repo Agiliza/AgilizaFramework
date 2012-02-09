@@ -79,6 +79,7 @@ class HttpResponse(metaclass=abc.ABCMeta):
         self.cookies = SimpleCookie()
 
         self['Content-Type'] = content_type
+        self._body = ''
 
     @property
     def status(self):
@@ -89,13 +90,11 @@ class HttpResponse(metaclass=abc.ABCMeta):
         response_headers = [
             (key, value) for key, value in self._headers.values()
         ]
-        # TODO Set-Cookie
         return response_headers
 
     @property
     def body(self):
-        #ret = [ ("REQUEST_METHOD: %s" % request.method).encode('utf-8') ]
-        return []
+        return [ self._body.encode(self._charset) ]
 
     def __setitem__(self, header, value):
         self._headers[header.lower()] = (header, value)
