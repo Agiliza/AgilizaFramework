@@ -5,7 +5,7 @@ from agiliza.net.handlers import base
 class WSGIHandler(base.BaseHandler):
     def __call__(self, environ, start_response):
         try:
-            request = HttpRequest(environ)
+            request = http.HttpRequest(environ)
         except UnicodeDecodeError:
             response = http.HttpResponseBadRequest()
         else:
@@ -22,4 +22,4 @@ class WSGIHandler(base.BaseHandler):
         print('script_name:',request.script_name)
 
         start_response(response.status, response.headers)
-        return response.body
+        return response.content

@@ -16,4 +16,5 @@ class BaseHandler(object):
 
     def get_response(self, request):
         """Returns an Response object for the given Request."""
-        return HttpResponseOk()
+        resource = Test()
+        return resource.dispatch(request)
