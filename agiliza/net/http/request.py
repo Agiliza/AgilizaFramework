@@ -61,13 +61,13 @@ class HttpRequest(object):
         self.method = environ['REQUEST_METHOD'].upper()
         self.path_info = '/' + self.meta.get('PATH_INFO','').lstrip('/')
         self.query_string = '/' + self.meta.get('QUERY_STRING','')
-        self.script_name = self.environ.get('SCRIPT_NAME', '')
+        self.script_name = self.meta.get('SCRIPT_NAME', '')
         # Cached values
         self._host = None
 
     def is_secure(self):
-        return 'wsgi.url_scheme' in self.environ \
-            and self.environ['wsgi.url_scheme'] == 'https'
+        return 'wsgi.url_scheme' in self.meta \
+            and self.meta['wsgi.url_scheme'] == 'https'
 
     def is_ajax(self):
         """Alias for :attr:`is_xhr`. "Ajax" is not the right term."""

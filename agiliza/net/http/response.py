@@ -44,7 +44,9 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5,
 
 """
 import abc
+import collections
 from http.cookies import SimpleCookie
+
 from agiliza.core.datastructures import MultiValueDict
 
 
@@ -70,7 +72,8 @@ class HttpResponse(metaclass=abc.ABCMeta):
         if not content_type:
             content_type = "%s; charset=%s" % (default_content_type,
                 self._charset)
-        if not isinstance(content, str) and hasattr(content, '__iter__'):
+        if isinstance(content, collections.Iterable) and \
+            not isinstance(content, str):
             self._container = content
             self._is_string = False
         else:
@@ -79,7 +82,7 @@ class HttpResponse(metaclass=abc.ABCMeta):
         self.cookies = SimpleCookie()
 
         self['Content-Type'] = content_type
-        self._body = ''
+        self._content = content
 
     @property
     def status(self):
@@ -93,8 +96,8 @@ class HttpResponse(metaclass=abc.ABCMeta):
         return response_headers
 
     @property
-    def body(self):
-        return [ self._body.encode(self._charset) ]
+    def content(self):
+        return [ self._content.encode(self._charset) ]
 
     def __setitem__(self, header, value):
         self._headers[header.lower()] = (header, value)
