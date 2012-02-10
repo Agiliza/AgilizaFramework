@@ -52,6 +52,9 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5,
     Last-Modified            ; Section 14.29
 
 """
+from agiliza.net.http.parser import parse_accept_header
+
+
 class HttpRequest(object):
     """A basic HTTP request."""
 
