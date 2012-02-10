@@ -1,1 +1,1 @@
-from agiliza.resources.resources import Resource, method
+from agiliza.resources.base import Resource, method
