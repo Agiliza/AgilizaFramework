@@ -62,6 +62,8 @@ class HttpRequest(object):
         self.path_info = '/' + self.meta.get('PATH_INFO','').lstrip('/')
         self.query_string = '/' + self.meta.get('QUERY_STRING','')
         self.script_name = self.meta.get('SCRIPT_NAME', '')
+        accept_hdr = self.meta.get('HTTP_ACCEPT', 'Accept: text/html') #  TODO default Accept header from settings
+        self.accept = parse_accept_header(accept_hdr)
         # Cached values
         self._host = None
 

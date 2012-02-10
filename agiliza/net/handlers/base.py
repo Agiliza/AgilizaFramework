@@ -1,5 +1,17 @@
 from agiliza.net.http import HttpResponseOk
 
+# Just a test
+from agiliza.resources import Resource, method
+class Test(Resource):
+    @method(allow='GET')
+    def get(self, request):
+        print('get method')
+        return HttpResponseOk('Método get')
+
+    @method(allow=['PUT', 'POST'])
+    def change(self, request):
+        print('change method')
+        return HttpResponseOk('Método change')
 
 class BaseHandler(object):
     def __init__(self):

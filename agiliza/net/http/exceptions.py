@@ -1,3 +1,5 @@
 class AcceptHeaderException(Exception): pass
 
-class AllowHeaderValuesException(Exception): pass
+class MethodNotAllowedException(Exception): pass
+
+class NotAcceptableException(Exception): pass

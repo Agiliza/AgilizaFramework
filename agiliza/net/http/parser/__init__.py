@@ -16,7 +16,14 @@ def parse_accept_header(accept_header):
             raise AcceptHeaderException()
 
         key = '%s/%s' % (media_type, media_subtype)
-        media_range[key] = float(media_q or 1.0)
+        # Check if media type is in ``media_range``. In this case, get
+        # the highest value for ``media_q``
+        if media_range.has_key(key):
+            prev_key, prev_q = media_range[key]
+            if prev_q > media_q:
+                media_q = prev_q
+        # Store the quality for this media type
+        media_range[key] = media_q
 
     if len(media_range) == 0:
         raise AcceptHeaderException("Accept header is empty")
