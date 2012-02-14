@@ -68,7 +68,7 @@ class HttpResponse(metaclass=abc.ABCMeta):
         # and the header value.
         self._headers = {}
         self._charset = 'utf-8'  # TODO settings
-        default_content_type = 'text/plain'  # TODO settings
+        default_content_type = 'text/html'  # TODO settings
         if not content_type:
             content_type = "%s; charset=%s" % (default_content_type,
                 self._charset)

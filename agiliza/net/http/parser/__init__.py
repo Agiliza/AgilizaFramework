@@ -1,6 +1,10 @@
+"""
+parse_header and _parse_header_params from Django
+"""
+
 from agiliza.net.http.exceptions import AcceptHeaderException
 from agiliza.net.http.parser import expressions
-
+from agiliza.net.http.parser.forms import parse_form_data
 
 def parse_accept_header(accept_header):
     media_range = {}

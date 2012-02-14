@@ -1,5 +1,14 @@
-class AcceptHeaderException(Exception): pass
+# Parser exceptcions
+class ParserException(Exception): pass
 
-class MethodNotAllowedException(Exception): pass
+class AcceptHeaderException(ParserException): pass
 
-class NotAcceptableException(Exception): pass
+class FormDataProcessingException(ParserException): pass
+
+
+# HTTP Header exceptions
+class HttpHeaderException(Exception): pass
+
+class MethodNotAllowedException(HttpHeaderException): pass
+
+class NotAcceptableException(HttpHeaderException): pass

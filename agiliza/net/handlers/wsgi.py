@@ -11,6 +11,7 @@ class WSGIHandler(base.BaseHandler):
         else:
             response = self.get_response(request)
 
+        print()
         print('REQUEST')
         print('is_secure:',request.is_secure())
         print('is_ajax:',request.is_ajax())
@@ -20,6 +21,10 @@ class WSGIHandler(base.BaseHandler):
         print('method:',request.method)
         print('query_string:',request.query_string)
         print('script_name:',request.script_name)
+        print('accept:',request.accept)
+        print()
+        print('query:',request.query)
+        print('data:',request.data)
 
         start_response(response.status, response.headers)
         return response.content

@@ -52,7 +52,8 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5,
     Last-Modified            ; Section 14.29
 
 """
-from agiliza.net.http.parser import parse_accept_header
+import urllib
+from agiliza.net.http.parser import parse_accept_header, parse_form_data
 
 
 class HttpRequest(object):
@@ -61,14 +62,28 @@ class HttpRequest(object):
     def __init__(self, environ):
         """Wrap a WSGI environ dictionary."""
         self.meta = environ
-        self.method = environ['REQUEST_METHOD'].upper()
+        self.method = self.meta['REQUEST_METHOD']
         self.path_info = '/' + self.meta.get('PATH_INFO','').lstrip('/')
-        self.query_string = '/' + self.meta.get('QUERY_STRING','')
+        self.query_string = self.meta.get('QUERY_STRING','')
         self.script_name = self.meta.get('SCRIPT_NAME', '')
+
+        try:
+            self.content_length = int(
+                self.meta.get('HTTP_CONTENT_LENGTH',
+                    self.meta.get('CONTENT_LENGTH', 0))
+            )
+        except (ValueError, TypeError):
+            # For now set it to 0; we'll try again later on down.
+            self.content_length = 0
+
         accept_hdr = self.meta.get('HTTP_ACCEPT', 'Accept: text/html') #  TODO default Accept header from settings
         self.accept = parse_accept_header(accept_hdr)
+        self._stream = self.meta['wsgi.input']
         # Cached values
         self._host = None
+        self._full_path = None
+        self._query = None
+        self._data = None
 
     def is_secure(self):
         return 'wsgi.url_scheme' in self.meta \
@@ -106,6 +121,9 @@ class HttpRequest(object):
         return self._host
 
     def get_full_path(self):
+        if self._full_path:
+            return self._full_path
+
         from urllib import quote
         url = self.meta['wsgi.url_scheme'] + '://'
         url += self.get_host()
@@ -114,4 +132,24 @@ class HttpRequest(object):
         if self.meta.get('QUERY_STRING'):
             url += '?' + self.meta['QUERY_STRING']
 
+        self._full_path = url
         return url
+
+    @property
+    def query(self):
+        if self._query:
+            return self._query
+
+        self._query = urllib.parse.parse_qs(
+            self.meta.get('QUERY_STRING',''),
+            keep_blank_values=True
+        )
+        return self._query
+
+    @property
+    def data(self):
+        if self._data:
+            return self._data
+
+        self._data = parse_form_data(self.meta, self._stream)
+        return self._data
