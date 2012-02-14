@@ -44,6 +44,7 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5,
 
 """
 import abc
+import cgi
 import collections
 from http.cookies import SimpleCookie
 
@@ -64,14 +65,22 @@ class HttpResponse(metaclass=abc.ABCMeta):
 
     def __init__(self, content='', content_type=None):
         # _headers is a mapping of the lower-case name to the original
-        # case of the header (required for working with legacy systems)
-        # and the header value.
+        # case of the header and the header value.
         self._headers = {}
-        self._charset = 'utf-8'  # TODO settings
-        default_content_type = 'text/html'  # TODO settings
-        if not content_type:
-            content_type = "%s; charset=%s" % (default_content_type,
-                self._charset)
+
+        # Content-Type
+        self.charset = 'utf-8'  # TODO settings
+        if content_type:
+            self.content_type, pdict = cgi.parse_header(content_type)
+            self.charset = pdict.get('charset', self.charset)
+        else:
+            self.content_type = 'text/html'  # TODO settings
+
+        content_type = "%s; charset=%s" % (self.content_type,
+            self.charset)
+        self['Content-Type'] = content_type
+
+        # Content
         if isinstance(content, collections.Iterable) and \
             not isinstance(content, str):
             self._container = content
@@ -79,10 +88,10 @@ class HttpResponse(metaclass=abc.ABCMeta):
         else:
             self._container = [content]
             self._is_string = True
-        self.cookies = SimpleCookie()
-
-        self['Content-Type'] = content_type
         self._content = content
+
+        # Cookies
+        self.cookies = SimpleCookie()
 
     @property
     def status(self):

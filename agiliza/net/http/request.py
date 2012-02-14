@@ -52,8 +52,10 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5,
     Last-Modified            ; Section 14.29
 
 """
+import cgi
 import urllib
-from agiliza.net.http.parser import parse_accept_header, parse_form_data
+
+from agiliza.net.http.parser import parse_accept_header
 
 
 class HttpRequest(object):
@@ -67,16 +69,16 @@ class HttpRequest(object):
         self.query_string = self.meta.get('QUERY_STRING','')
         self.script_name = self.meta.get('SCRIPT_NAME', '')
 
+        content_type = self.meta.get('CONTENT_TYPE', '')
+        self.content_type, pdict = cgi.parse_header(content_type)
+        self.charset = pdict.get('charset', 'utf-8')  # TODO settings
         try:
             self.content_length = int(
-                self.meta.get('HTTP_CONTENT_LENGTH',
-                    self.meta.get('CONTENT_LENGTH', 0))
-            )
-        except (ValueError, TypeError):
-            # For now set it to 0; we'll try again later on down.
+                self.meta.get('CONTENT_LENGTH', 0))
+        except ValueError:
             self.content_length = 0
 
-        accept_hdr = self.meta.get('HTTP_ACCEPT', 'Accept: text/html') #  TODO default Accept header from settings
+        accept_hdr = self.meta.get('HTTP_ACCEPT', 'Accept: text/html')  # TODO settings
         self.accept = parse_accept_header(accept_hdr)
         self._stream = self.meta['wsgi.input']
         # Cached values
@@ -84,6 +86,7 @@ class HttpRequest(object):
         self._full_path = None
         self._query = None
         self._data = None
+        self._files = None
 
     def is_secure(self):
         return 'wsgi.url_scheme' in self.meta \
@@ -124,7 +127,7 @@ class HttpRequest(object):
         if self._full_path:
             return self._full_path
 
-        from urllib import quote
+        from urllib.parse import quote
         url = self.meta['wsgi.url_scheme'] + '://'
         url += self.get_host()
         url += quote(self.meta.get('SCRIPT_NAME', ''))
@@ -151,5 +154,23 @@ class HttpRequest(object):
         if self._data:
             return self._data
 
-        self._data = parse_form_data(self.meta, self._stream)
+        self._data = cgi.FieldStorage(
+            fp=self._stream,
+            environ=self.meta,
+            keep_blank_values=True
+        )
         return self._data
+
+    @property
+    def files(self):
+        if self._files:
+            return self._files
+
+        data = self.data
+        self._files = {}
+        for key in data: # TODO diccionario de compresion?
+            value = data[key]
+            if value.file:
+                self._files[key] = value
+
+        return self._files

@@ -10,12 +10,17 @@ class Test(Resource):
         <html><head></head>
         <body>
         <p>%s</p>
-        <form action="." method="post">
+        <form name="uno" action="/otra" method="get">
         <p><input type="text" name="username" id="username" /></p>
         <input type="password" name="password" id="password" /></p>
         <p><input type="checkbox" name="item" value="1" />
         <input type="checkbox" name="item" value="2" /></p>
         <p><input type="submit" value="Submit" /></p>
+        </form>
+        <br />
+        <form action="." method="post" enctype="multipart/form-data">
+        <input type="file" name="failas" />
+        <input type="submit" value="Varom" />
         </form>
         </body>
         </html>
@@ -25,6 +30,11 @@ class Test(Resource):
     @method(allow=['PUT', 'POST'])
     def change(self, request):
         print('change method')
+        return HttpResponseOk(str(request.data))
+
+class Test1(Resource):
+    @method(allow='GET')
+    def get(self, request):
         return HttpResponseOk(str(request.data))
 
 class BaseHandler(object):
@@ -42,5 +52,8 @@ class BaseHandler(object):
 
     def get_response(self, request):
         """Returns an Response object for the given Request."""
-        resource = Test()
+        if request.path_info == '/otra':
+            resource = Test1()
+        else:
+            resource = Test()
         return resource.dispatch(request)

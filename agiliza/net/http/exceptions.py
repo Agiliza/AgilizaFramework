@@ -3,8 +3,6 @@ class ParserException(Exception): pass
 
 class AcceptHeaderException(ParserException): pass
 
-class FormDataProcessingException(ParserException): pass
-
 
 # HTTP Header exceptions
 class HttpHeaderException(Exception): pass
