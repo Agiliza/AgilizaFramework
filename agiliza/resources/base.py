@@ -64,3 +64,11 @@ class Resource(metaclass=ResourceMetaclass):
 
         # TODO warning if response.content_type is not in method.accept
         return response
+
+    def get_filestorage(self):
+        '''
+            Debería buscar si la vista tiene asociado algún filestorage.
+            En caso de no tenerlo, se debería buscar en la aplicación y
+            si no, en el proyecto. <-- ¿Cómo localizar la aplicación?
+        '''
+        pass # TODO

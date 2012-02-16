@@ -1,0 +1,24 @@
+Networkt/HTTP 1.1
+=================
+
+* HTTP Content Negotation
+-------------------------
+Accept-Charset
+Accept-Language
+Accept-Encoding
+
+* HTTP Processing
+-----------------
+* Filestorage
+* Forms
+
+* Cookies
+* Authorization
+* Other headers: ETag, Retry-After, If-Match, ...
+
+Bundles
+=======
+* Bundles dependencies
+* Functionalities dependent on other bundles
+* URLs dependent on settings or profile
+* Python Egg compatibility??
