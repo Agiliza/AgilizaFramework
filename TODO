@@ -22,3 +22,7 @@ Bundles
 * Functionalities dependent on other bundles
 * URLs dependent on settings or profile
 * Python Egg compatibility??
+
+Settings
+========
+* Safety-trhead

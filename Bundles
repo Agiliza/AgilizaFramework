@@ -1,0 +1,35 @@
+Proposición de bundles
+======================
+
+Middleware
+----------
+* SEO: analiza las etiquetas HTML y sugiera cambios
+
+	- Profiles: debug
+
+* W3 validator: validación de los documentos web (HTML, XHTML, SMIL, MathML,
+	etc.), CSS y Feeds.
+
+	- Profiles: debug
+	- Info: http://validator.w3.org/, http://validator.w3.org/feed/, http://jigsaw.w3.org/css-validator/
+
+* Profiling: ejecuta un profile para analizar el uso de recursos y tiempos
+
+	- Profiles: debug
+
+* Http500 Alert: manda alertas a los administradores cada vez que se produzca
+	un error 500 en una respuesta
+
+	- Profiles: deploy
+
+
+Management
+----------
+* Cron: da la opción a las aplicaciones de que programen tareas de manetnimiento
+
+	- Profiles: all
+
+* TaskQueue: da la opción a las aplicaciones de que encolen tareas, que se
+	ejecutarán de forma asíncrona
+	
+	- Profiles: all
