@@ -26,7 +26,7 @@ Directory structure:
         \ -- interface.py
 
 ``__init__.py`` must import, at least, its base and interface if they
-are present.
+are present (not Metaclass).
 
 ``interface.py`` contains the interface of the component, if it's
 required. Furthermore, this interface can use a Metaclass. It will
@@ -34,6 +34,8 @@ included in this file.
 
 ``base.py`` contains a useful implementation of the component (not
 always makes sense, it's depend of component).
+
+Each compoment must have its own exceptions.
 
 
 Section 1.1 Component Metaclass
