@@ -17,15 +17,20 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-# See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.1
-from agiliza.net.http.response import HttpResponse
+from agiliza.http import HttpResponseOk
 
 
-class HttpResponseContinue(HttpResponse):
-    status_code = 100
-    status_text = 'CONTINUE'
+class Handler(object):
+    def __init__(self):
+        try:
+            self.load_middleware()
+        except:
+            # Unload whatever middleware we got
+            self._request_middleware = None
+            raise
 
+    def load_middleware(self):
+        """Populate middleware lists."""
 
-class HttpResponseSwitchingProtocols(HttpResponse):
-    status_code = 101
-    status_text = 'SWITCHING PROTOCOLS'
+    def get_response(self, request):
+        """Returns an Response object for the given Request."""

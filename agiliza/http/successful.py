@@ -18,7 +18,7 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2
-from agiliza.net.http.response import HttpResponse
+from agiliza.http.response import HttpResponse
 
 
 class HttpResponseOk(HttpResponse):

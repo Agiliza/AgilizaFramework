@@ -17,13 +17,15 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-from wsgiref.util import setup_testing_defaults
-from wsgiref.simple_server import make_server
-
-from agiliza.handlers.wsgi import WSGIHandler
+# See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.1
+from agiliza.http.response import HttpResponse
 
 
-if __name__ == "__main__":
-    httpd = make_server('', 8888, WSGIHandler())
-    print("Serving on port 8888...")
-    httpd.serve_forever()
+class HttpResponseContinue(HttpResponse):
+    status_code = 100
+    status_text = 'CONTINUE'
+
+
+class HttpResponseSwitchingProtocols(HttpResponse):
+    status_code = 101
+    status_text = 'SWITCHING PROTOCOLS'

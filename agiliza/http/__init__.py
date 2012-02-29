@@ -17,7 +17,7 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-from agiliza.net.http.client_error import (HttpResponseBadRequest,
+from agiliza.http.client_error import (HttpResponseBadRequest,
     HttpResponseUnauthorized, HttpResponsePaymentRequired,
     HttpResponseForbidden, HttpResponseNotFound,
     HttpResponseMethodNotAllowed, HttpResponseNotAcceptable,
@@ -27,18 +27,18 @@ from agiliza.net.http.client_error import (HttpResponseBadRequest,
     HttpResponseRequestURITooLong, HttpResponseUnsupportedMediaType,
     HttpResponseRequestedRangeNotSatisfiable,
     HttpResponseExpectationFailed)
-from agiliza.net.http.informational import (HttpResponseContinue,
+from agiliza.http.informational import (HttpResponseContinue,
     HttpResponseSwitchingProtocols)
-from agiliza.net.http.redirection import (HttpResponseMultipleChoices,
+from agiliza.http.redirection import (HttpResponseMultipleChoices,
     HttpResponseMovedPermanently, HttpResponseFound,
     HttpResponseSeeOther, HttpResponseNotModified, HttpResponseUseProxy,
     HttpResponseTemporaryRedirect)
-from agiliza.net.http.request import HttpRequest
-from agiliza.net.http.server_error import (
+from agiliza.http.request import HttpRequest
+from agiliza.http.server_error import (
     HttpResponseInternalServerError, HttpResponseNotImplemented,
     HttpResponseBadGateway, HttpResponseServiceUnavailable,
     HttpResponseGatewayTimeout, HttpResponseHTTPVersionNotSupported)
-from agiliza.net.http.successful import (HttpResponseOk,
+from agiliza.http.successful import (HttpResponseOk,
     HttpResponseCreated, HttpResponseAccepted,
     HttpResponseNonAuthoritativeInformation, HttpResponseNoContent,
     HttpResponseResetContent, HttpResponsePartialContent)

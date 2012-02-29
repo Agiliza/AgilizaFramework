@@ -67,8 +67,6 @@ import cgi
 import collections
 from http.cookies import SimpleCookie
 
-from agiliza.core.datastructures import MultiValueDict
-
 
 class HttpResponse(metaclass=abc.ABCMeta):
     """
@@ -125,7 +123,7 @@ class HttpResponse(metaclass=abc.ABCMeta):
 
     @property
     def content(self):
-        return [ self._content.encode(self._charset) ]
+        return [ self._content.encode(self.charset) ]
 
     def __setitem__(self, header, value):
         self._headers[header.lower()] = (header, value)

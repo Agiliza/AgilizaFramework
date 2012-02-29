@@ -17,8 +17,8 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-from agiliza.net.http.exceptions import AcceptHeaderException
-from agiliza.net.http.parser import expressions
+from agiliza.http.exceptions import AcceptHeaderException
+from agiliza.http.parser import expressions
 
 
 def parse_accept_header(accept_header):

@@ -75,7 +75,7 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5,
 import cgi
 import urllib
 
-from agiliza.net.http.parser import parse_accept_header
+from agiliza.http.parser import parse_accept_header
 
 
 class HttpRequest(object):

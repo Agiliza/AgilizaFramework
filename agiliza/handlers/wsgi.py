@@ -17,11 +17,11 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-from agiliza.net import http
-from agiliza.net.handlers import base
+from agiliza import http
+from agiliza.handlers import Handler
 
 
-class WSGIHandler(base.BaseHandler):
+class WSGIHandler(Handler):
     def __call__(self, environ, start_response):
         print(environ)
         try:
@@ -30,7 +30,7 @@ class WSGIHandler(base.BaseHandler):
             response = http.HttpResponseBadRequest()
         else:
             response = self.get_response(request)
-
+        '''
         print()
         print('REQUEST')
         print('is_secure:',request.is_secure())
@@ -48,6 +48,6 @@ class WSGIHandler(base.BaseHandler):
         print('data:',request.data)
         print('files:',request.files)
         print()
-
+        '''
         start_response(response.status, response.headers)
         return response.content
