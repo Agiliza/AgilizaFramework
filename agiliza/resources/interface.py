@@ -23,23 +23,23 @@ from agiliza.resources.mapper import ResourceMapper
 
 
 def method(allow, accept='text/html'):
-        def info(target):
-            allow_list = allow
-            if isinstance(allow, str):
-                allow_list = [allow, ]
+    def info(target):
+        allow_list = allow
+        if isinstance(allow, str):
+            allow_list = [allow, ]
 
-            if not isinstance(allow_list, collections.Iterable):
-                raise ValueError(
-                    "In a method, allow parameter must be iterable")
+        if not isinstance(allow_list, collections.Iterable):
+            raise ValueError(
+                "In a method, allow parameter must be iterable")
 
-            if not isinstance(accept, str):
-                raise ValueError("In a method, accept must be a string")
+        if not isinstance(accept, str):
+            raise ValueError("In a method, accept must be a string")
 
-            target.allow = allow_list
-            target.accept = accept.strip()
-            return target
+        target.allow = allow_list
+        target.accept = accept.strip()
+        return target
 
-        return info
+    return info
 
 
 class ResourceMetaclass(type):

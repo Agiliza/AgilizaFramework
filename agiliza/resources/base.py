@@ -17,8 +17,8 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-from agiliza.core.net import http
-from agiliza.core.net.http.exceptions import (MethodNotAllowedException,
+from agiliza import http
+from agiliza.http.exceptions import (MethodNotAllowedException,
     NotAcceptableException)
 from agiliza.resources.interface import ResourceMetaclass
 
