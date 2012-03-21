@@ -18,6 +18,7 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 import abc
+import inspect
 
 from agiliza import http
 from agiliza.core.urls import URLRegexp
@@ -44,8 +45,6 @@ class View(metaclass=abc.ABCMeta):
     def dispatch(self, request, session, config, user, *args, **kwargs):
         url = request.meta['path_info']
 
-        print('')
-        print('DISPATCH', '*'*10)
         match = None
         for regexp in self.urls():
             match = regexp.match(url)
@@ -55,17 +54,26 @@ class View(metaclass=abc.ABCMeta):
 
         method_name = request.method.lower() + alias
         try:
-            print('URL:', alias)
-            print('METHOD NAME:', method_name)
+            kwargs = match or {}
+            # Getting the method
             method = getattr(self, method_name)
+            # Inspecting method's args
+            argspec = inspect.getfullargspec(method)
+            for arg in kwargs.keys():
+                if not arg in argspec.args:
+                    raise AttributeError()
+
             self.request = request
             self.session = session
             self.config = config
             self.user = user
-            kwargs = match or {}
-            response = method(**kwargs)
+            context_data, templates = method(**kwargs)
+            # Rendering the template
+            response = context_data
         except AttributeError as e:
-            response = http.HttpResponseMethodNotAllowed()
-        print('')
+            # TODO: ¿Cómo generar Allow methods?
+            allow = []
+            response = http.HttpResponseMethodNotAllowed(allow)
+
         return response
 

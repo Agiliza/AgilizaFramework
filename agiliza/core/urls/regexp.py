@@ -39,7 +39,6 @@ class URLRegexp(object):
             raise Exception()# All groups must be named
 
     def match(self, url):
-        print('URLRegexp:', self.regexp.pattern, 'for:', url)
         params = self.regexp.match(url)
         if params:
             params = params.groupdict()
