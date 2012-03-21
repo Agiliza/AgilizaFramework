@@ -18,14 +18,14 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 # Parser exceptcions
-class ParserException(Exception): pass
+class HttpParserException(Exception): pass
 
-class AcceptHeaderException(ParserException): pass
+class AcceptHeaderParserException(HttpParserException): pass
 
 
-# HTTP Header exceptions
-class HttpHeaderException(Exception): pass
+# HTTP Request exceptions
+class HttpRequestException(Exception): pass
 
-class MethodNotAllowedException(HttpHeaderException): pass
+class MethodNotAllowedException(HttpRequestException): pass
 
-class NotAcceptableException(HttpHeaderException): pass
+class NotAcceptableException(HttpRequestException): pass

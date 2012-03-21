@@ -17,4 +17,4 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-from agiliza.resources.base import Resource
+from agiliza.views.base import View

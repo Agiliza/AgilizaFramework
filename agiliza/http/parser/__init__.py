@@ -17,7 +17,7 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-from agiliza.http.exceptions import AcceptHeaderException
+from agiliza.http.exceptions import AcceptHeaderParserException
 from agiliza.http.parser import expressions
 
 
@@ -29,7 +29,7 @@ def parse_accept_header(accept_header):
         try:
             media_q = float(it.group('q') or 1.0)
         except ValueError:
-            raise AcceptHeaderException()
+            raise AcceptHeaderParserException()
 
         key = '%s/%s' % (media_type, media_subtype)
         # Check if media type is in ``media_range``. In this case, get
@@ -42,6 +42,6 @@ def parse_accept_header(accept_header):
         media_range[key] = media_q
 
     if len(media_range) == 0:
-        raise AcceptHeaderException("Accept header is empty")
+        raise AcceptHeaderParserException("Accept header is empty")
 
     return media_range

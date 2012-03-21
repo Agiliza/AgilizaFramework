@@ -17,15 +17,4 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-from agiliza.handlers.context import ContextManager
-
-
-class Handler(object):
-    def get_response(self, request):
-        """Returns an Response object for the given Request."""
-        # Locate the appropiate resource
-        resource = None # TODO: Locate
-        params = {} # TODO: URL params
-        with ContextManager(request, params) as context:
-            context_data = context.get_data()
-            template_context, templates = resource.dispatch(**context)
+from agiliza.core.urls.regexp import URLRegexp

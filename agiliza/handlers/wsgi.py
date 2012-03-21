@@ -23,7 +23,6 @@ from agiliza.handlers import Handler
 
 class WSGIHandler(Handler):
     def __call__(self, environ, start_response):
-        print(environ)
         try:
             request = http.HttpRequest(environ)
         except UnicodeDecodeError:
