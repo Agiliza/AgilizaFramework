@@ -22,8 +22,6 @@ import inspect
 
 from agiliza import http
 from agiliza.core.urls import URLRegexp
-from agiliza.http.exceptions import (MethodNotAllowedException,
-    NotAcceptableException)
 
 
 __all__ = ('View',)
@@ -42,6 +40,8 @@ class View(metaclass=abc.ABCMeta):
         ]
         return tuple(url_list)
 
+    #def render(self, data,
+
     def dispatch(self, request, session, config, user, *args, **kwargs):
         url = request.meta['path_info']
 
@@ -52,28 +52,35 @@ class View(metaclass=abc.ABCMeta):
 
         alias = regexp.alias
 
-        method_name = request.method.lower() + alias
         try:
             kwargs = match or {}
+            method_name = request.method.lower() + alias
             # Getting the method
             method = getattr(self, method_name)
             # Inspecting method's args
             argspec = inspect.getfullargspec(method)
             for arg in kwargs.keys():
                 if not arg in argspec.args:
-                    raise AttributeError()
+                    raise http.HttpMethodNotAllowedException()
 
+            # Calling the method
             self.request = request
             self.session = session
             self.config = config
             self.user = user
             context_data, templates = method(**kwargs)
+            # Cheking the content-type
+            if self.request.accept:
+                raise http.HttpNotAcceptableException()
+
             # Rendering the template
-            response = context_data
-        except AttributeError as e:
+            response = http.HttpResponseOk()
+        except (AttributeError, HttpMethodNotAllowedException) as e:
             # TODO: ¿Cómo generar Allow methods?
             allow = []
             response = http.HttpResponseMethodNotAllowed(allow)
+        except HttpNotAcceptableException as e: # Part of HTTP Content Negotiation
+            response = http.HttpResponseNotAcceptable()
 
         return response
 

@@ -27,6 +27,8 @@ from agiliza.http.client_error import (HttpResponseBadRequest,
     HttpResponseRequestURITooLong, HttpResponseUnsupportedMediaType,
     HttpResponseRequestedRangeNotSatisfiable,
     HttpResponseExpectationFailed)
+from agiliza.http.exceptions import (HttpRequestException,
+    HttpMethodNotAllowedException, HttpNotAcceptableException)
 from agiliza.http.informational import (HttpResponseContinue,
     HttpResponseSwitchingProtocols)
 from agiliza.http.redirection import (HttpResponseMultipleChoices,

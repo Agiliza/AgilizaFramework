@@ -29,7 +29,7 @@ class WSGIHandler(Handler):
             response = http.HttpResponseBadRequest()
         else:
             response = self.get_response(request)
-        '''
+
         print()
         print('REQUEST')
         print('is_secure:',request.is_secure())
@@ -47,6 +47,6 @@ class WSGIHandler(Handler):
         print('data:',request.data)
         print('files:',request.files)
         print()
-        '''
+
         start_response(response.status, response.headers)
         return response.content

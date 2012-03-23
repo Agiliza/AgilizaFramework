@@ -20,12 +20,12 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 # Parser exceptcions
 class HttpParserException(Exception): pass
 
-class AcceptHeaderParserException(HttpParserException): pass
+class HttpAcceptHeaderParserException(HttpParserException): pass
 
 
 # HTTP Request exceptions
 class HttpRequestException(Exception): pass
 
-class MethodNotAllowedException(HttpRequestException): pass
+class HttpMethodNotAllowedException(HttpRequestException): pass
 
-class NotAcceptableException(HttpRequestException): pass
+class HttpNotAcceptableException(HttpRequestException): pass
