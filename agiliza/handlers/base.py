@@ -102,5 +102,8 @@ class Handler(object):
         response = http.HttpResponseInternalServerError()
         with ContextManager(request, params) as context:
             context_data = context.get_data()
-            response = view.dispatch(**context_data)
+            try:
+                response = view.dispatch(**context_data)
+            except Exception:
+                response = http.HttpResponseInternalServerError()
         return response
