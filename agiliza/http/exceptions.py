@@ -23,9 +23,9 @@ class HttpParserException(Exception): pass
 class HttpAcceptHeaderParserException(HttpParserException): pass
 
 
-# HTTP Request exceptions
-class HttpRequestException(Exception): pass
+# HTTP exceptions
+class HttpException(Exception): pass
 
-class HttpMethodNotAllowedException(HttpRequestException): pass
+class HttpMethodNotAllowedException(HttpException): pass
 
-class HttpNotAcceptableException(HttpRequestException): pass
+class HttpNotAcceptableException(HttpException): pass
