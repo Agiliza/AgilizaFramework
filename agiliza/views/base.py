@@ -40,7 +40,8 @@ class View(metaclass=abc.ABCMeta):
         ]
         return tuple(url_list)
 
-    #def render(self, data,
+    def render(self, data, presentation):
+        return ''
 
     def dispatch(self, request, session, config, user, *args, **kwargs):
         url = request.meta['path_info']
@@ -68,14 +69,16 @@ class View(metaclass=abc.ABCMeta):
             self.session = session
             self.config = config
             self.user = user
-            context_data, templates = method(**kwargs)
+
+            data, presentation = method(**kwargs)
             # Cheking the content-type
-            if self.request.accept:
+            if self.request.accept: # TODO: checking
                 raise http.HttpNotAcceptableException()
 
             # Rendering the template
-            response = http.HttpResponseOk()
-        except (AttributeError, HttpMethodNotAllowedException) as e:
+            content = self.render(data, presentation)
+            response = http.HttpResponseOk(content)
+        except (AttributeError, http.HttpMethodNotAllowedException) as e:
             # TODO: ¿Cómo generar Allow methods?
             allow = []
             response = http.HttpResponseMethodNotAllowed(allow)
