@@ -23,7 +23,7 @@ class HttpParserException(Exception): pass
 class HttpAcceptHeaderParserException(HttpParserException): pass
 
 
-# HTTP exceptions
+# HTTP Request exceptions
 class HttpException(Exception): pass
 
 class HttpMethodNotAllowedException(HttpException): pass
