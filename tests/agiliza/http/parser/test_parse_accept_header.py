@@ -36,6 +36,10 @@ class ParseAcceptHeaderTest(unittest.TestCase):
         with self.assertRaises(HttpAcceptHeaderParserException):
             parse_accept_header('Some text')
 
+    def test_must_not_validate_only_a_type(self):
+        with self.assertRaises(HttpAcceptHeaderParserException):
+            parse_accept_header('Accept:text')
+
     def test_must_accept_multiple_types(self):
         parsed_header = parse_accept_header('Accept: text/plain; q=0.5,\
             text/html, text/x-dvi; q=0.8, text/x-c')
