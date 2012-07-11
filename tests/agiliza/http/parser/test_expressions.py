@@ -22,9 +22,9 @@ from agiliza.http.exceptions import HttpAcceptHeaderParserException
 from agiliza.http.parser import parse_accept_header
 
 
-class ParseAcceptHeaderTest(unittest.TestCase):
+class ExpressionsTest(unittest.TestCase):
 
-    def test_must_accept_all_types(self):
+    def test_accept_is_valid(self):
         parsed_header = parse_accept_header('Accept:*/*')
 
         self.assertDictEqual(
@@ -55,21 +55,6 @@ class ParseAcceptHeaderTest(unittest.TestCase):
     def test_must_not_validate_without_semicolon(self):
         with self.assertRaises(HttpAcceptHeaderParserException):
             parse_accept_header('Accept: text/plain q=0.5')
-            
-    def test_must_accept_multiple_types_even_one_without_semicolon(self):
-        """
-        Ignora la q si no va precedida de ; pero no falla
-        """
-        parsed_header = parse_accept_header('Accept: text/plain q=0.5,\
-            text/html, text/x-dvi; q=0.8, text/x-c')
-
-        self.assertDictEqual(parsed_header, {
-                'text/plain': 1.0,
-                'text/html': 1.0,
-                'text/x-dvi': 0.8,
-                'text/x-c': 1.0,
-            }
-        )
 
 
 if __name__ == '__main__':
