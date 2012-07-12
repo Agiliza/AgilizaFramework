@@ -19,10 +19,10 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 import unittest
 
-from agiliza.http.parser.expressions import ACCEPT_MEDIA_RANGE
+from agiliza.http.parser.expressions import ACCEPT, ACCEPT_MEDIA_RANGE
 
 
-class ExpressionsTest(unittest.TestCase):
+class AcceptMediaRangeTest(unittest.TestCase):
 
     def test_accept_media_range_must_match_all_types(self):
         match = ACCEPT_MEDIA_RANGE.match('*/*')
@@ -70,5 +70,48 @@ class ExpressionsTest(unittest.TestCase):
         )
 
 
+class AcceptTest(unittest.TestCase):
+    def test_empty_accept_must_not_validate(self):
+        match = ACCEPT.match('')
+
+        self.assertEqual(
+            match, None,
+            "ACCEPT must not validate if it is empty"
+        )
+
+    def test_accept_without_semicolon_must_not_validate(self):
+        match = ACCEPT.match('text/x-dvi q=0.8')
+
+        self.assertEqual(
+            match, None,
+            "ACCEPT without semicolon must not be valid"
+        )
+
+    def test_accept_without_subtype_must_not_validate(self):
+        match = ACCEPT_MEDIA_RANGE.match('text')
+
+        self.assertEqual(
+            match, None,
+            "ACCEPT without subtype must not validate"
+        )
+        
+    def test_accept_wellformed_must_validate(self):
+        match = ACCEPT_MEDIA_RANGE.match('text/plain')
+
+        self.assertNotEqual(
+            match, None,
+            "ACCEPT wellformed must validate"
+        )
+        
+    def test_accept_wellformed_with_accept_params_must_validate(self):
+        match = ACCEPT_MEDIA_RANGE.match('text/plain; q=0.8')
+
+        self.assertNotEqual(
+            match, None,
+            "ACCEPT wellformed must validate"
+        )
+
 if __name__ == '__main__':
     unittest.main()
+    
+

@@ -25,7 +25,7 @@ from agiliza.http.parser import parse_accept_header
 class ParseAcceptHeaderTest(unittest.TestCase):
 
     def test_must_accept_all_types(self):
-        parsed_header = parse_accept_header('Accept:*/*')
+        parsed_header = parse_accept_header('*/*')
 
         self.assertDictEqual(
             parsed_header, { '*/*': 1.0 },
@@ -33,15 +33,17 @@ class ParseAcceptHeaderTest(unittest.TestCase):
         )
 
     def test_must_not_validate_some_text(self):
-        with self.assertRaises(HttpAcceptHeaderParserException):
+        with self.assertRaises(HttpAcceptHeaderParserException,
+                               "ACCEPT HEADER must not validate 'Some text'"):
             parse_accept_header('Some text')
 
     def test_must_not_validate_only_a_type(self):
-        with self.assertRaises(HttpAcceptHeaderParserException):
+        with self.assertRaises(HttpAcceptHeaderParserException,
+                               "ACCEPT HEADER must contains subtype"):
             parse_accept_header('Accept:text')
 
     def test_must_accept_multiple_types(self):
-        parsed_header = parse_accept_header('Accept: text/plain; q=0.5,\
+        parsed_header = parse_accept_header('text/plain; q=0.5,\
             text/html, text/x-dvi; q=0.8, text/x-c')
 
         self.assertDictEqual(parsed_header, {
@@ -49,16 +51,21 @@ class ParseAcceptHeaderTest(unittest.TestCase):
                 'text/html': 1.0,
                 'text/x-dvi': 0.8,
                 'text/x-c': 1.0,
-            }
+            },
+            "ACCEPT HEADER do not accept multiple types",
         )
 
     def test_must_not_validate_without_semicolon(self):
-        with self.assertRaises(HttpAcceptHeaderParserException):
-            parse_accept_header('Accept: text/plain q=0.5')
+        with self.assertRaises(HttpAcceptHeaderParserException,
+                               "ACCEPT HEADER must not validate without\
+                               semicolon"):
+            parse_accept_header('text/plain q=0.5')
             
     def test_must_accept_multiple_types_even_one_without_semicolon(self):
-        with self.assertRaises(HttpAcceptHeaderParserException):
-            parsed_header = parse_accept_header('Accept: text/plain q=0.5,\
+        with self.assertRaises(HttpAcceptHeaderParserException,
+                               "ACCEPT HEADER must not validate without\
+                               semicolon even with multiple types"):
+            parsed_header = parse_accept_header('text/plain q=0.5,\
                 text/html, text/x-dvi; q=0.8, text/x-c')
 
 
