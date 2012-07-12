@@ -53,9 +53,20 @@ class ParseAcceptHeaderTest(unittest.TestCase):
                 'text/x-dvi': 0.8,
                 'text/x-c': 1.0,
             },
-            "ACCEPT HEADER do not accept multiple types",
+            "ACCEPT HEADER does not accept multiple types",
         )
-        
+
+    def test_must_accept_multiple_accept_types_for_same_media_type(self):
+        parsed_header = parse_accept_header('text/plain; q=0.5,\
+            text/html; q=0.8, text/html; q=0.2, text/html')
+
+        self.assertDictEqual(parsed_header, {
+                'text/plain': 0.5,
+                'text/html': 1.0,
+            },
+            "ACCEPT HEADER does not accept multiple accept-types",
+        )
+
     def test_must_accept_multiple_types_with_plus_symbols(self):
         parsed_header = parse_accept_header('text/plain; q=0.5,\
             text/xhtml+xml, text/x-dvi; q=0.8, text/x-c')
@@ -66,7 +77,7 @@ class ParseAcceptHeaderTest(unittest.TestCase):
                 'text/x-dvi': 0.8,
                 'text/x-c': 1.0,
             },
-            "ACCEPT HEADER do not accept multiple types with plus symbols",
+            "ACCEPT HEADER does not accept multiple types with plus symbols",
         )
 
     def test_must_not_validate_without_semicolon(self):
@@ -74,7 +85,7 @@ class ParseAcceptHeaderTest(unittest.TestCase):
                                msg="ACCEPT HEADER must not validate without\
                                semicolon"):
             parse_accept_header('text/plain q=0.5')
-            
+
     def test_must_accept_multiple_types_even_one_without_semicolon(self):
         with self.assertRaises(HttpAcceptHeaderParserException,
                                msg="ACCEPT HEADER must not validate without\
