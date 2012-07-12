@@ -22,11 +22,15 @@ from agiliza.core.handlers.context import ContextManager
 
 
 class Handler(object):
-    def get_response(self, request):
+    def __init__(self):
+        self.config = object()
+
+    def dispatch(self, request):
         """Returns an Response object for the given Request."""
-        # Locate the appropiate resource
+        # Locate the appropiate url
         params = {} # TODO: URL params
-        response = http.HttpResponseInternalServerError()
+        response = None
+
         with ContextManager(request, params) as context:
             context_data = context.get_data()
             try:

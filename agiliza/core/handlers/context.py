@@ -30,16 +30,14 @@ class ContextManager(ContextDecorator):
         # Apply middleware
         # Generate the context (session, user, config, ...)
         request = self.request
-        params = self.request.meta
+        params = self.params
         session = None
-        user = None
         config = None
 
         self._context = {
             'request': request,
             'params': params,
             'session': session,
-            'user': user,
             'config': config,
         }
 
