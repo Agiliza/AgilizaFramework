@@ -20,7 +20,7 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 from wsgiref.util import setup_testing_defaults
 from wsgiref.simple_server import make_server
 
-from agiliza.handlers.wsgi import WSGIHandler
+from agiliza.core.handlers.wsgi import WSGIHandler
 
 
 if __name__ == "__main__":

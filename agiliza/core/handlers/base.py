@@ -18,7 +18,7 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 from agiliza import http
-from agiliza.handlers.context import ContextManager
+from agiliza.core.handlers.context import ContextManager
 
 
 class Handler(object):

@@ -18,11 +18,12 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 from agiliza import http
-from agiliza.handlers import Handler
+from agiliza.core.handlers import Handler
 
 
 class WSGIHandler(Handler):
     def __call__(self, environ, start_response):
+        print(environ)
         try:
             request = http.HttpRequest(environ)
         except UnicodeDecodeError:
