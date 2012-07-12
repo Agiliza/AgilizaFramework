@@ -22,6 +22,9 @@ from agiliza.http.parser import expressions
 
 
 def parse_accept_header(accept_header):
+    if not expressions.ACCEPT.match(accept_header):
+        raise HttpAcceptHeaderParserException("ACCEPT HEADER is not valid")
+        
     media_range = {}
     for it in expressions.ACCEPT_MEDIA_RANGE.finditer(accept_header):
         media_type = it.group('type') or '*'
@@ -29,7 +32,7 @@ def parse_accept_header(accept_header):
         try:
             media_q = float(it.group('q') or 1.0)
         except ValueError:
-            raise HttpAcceptHeaderParserException()
+            raise HttpAcceptHeaderParserException("'q' must be float")
 
         key = '%s/%s' % (media_type, media_subtype)
         # Check if media type is in ``media_range``. In this case, get
