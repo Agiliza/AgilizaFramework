@@ -32,6 +32,10 @@ import re
     accept-params  = ";" "q" "=" qvalue *( accept-extension )
     accept-extension = ";" token [ "=" ( token | quoted-string ) ]
 """
+# Valida si un Accept es válido
+ACCEPT = re.compile(r'^((((\*|[\w-]+)/(\*|[\w-]+)([ ]*;[ ]*q[ ]*=[ ]*(\d.\d\d?))?[ ]*,[ ]*))|(((\*|[\w-]+)/(\*|[\w-]+)([ ]*;[ ]*q[ ]*=[ ]*(\d.\d\d?))?[ ]*)))+$')
+
 # TODO: dar soporte a otros parametros (como level)
 ACCEPT_MEDIA_RANGE = re.compile(r'(?P<type>\*|[\w-]+)/(?P<subtype>\*|[\w-]+)[ ]*([ ]*;[ ]*q[ ]*=[ ]*(?P<q>\d.\d\d?))?')
+
 
