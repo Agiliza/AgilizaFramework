@@ -88,7 +88,7 @@ class AcceptTest(unittest.TestCase):
         )
 
     def test_accept_without_subtype_must_not_validate(self):
-        match = ACCEPT_MEDIA_RANGE.match('text')
+        match = ACCEPT.match('text')
 
         self.assertEqual(
             match, None,
@@ -96,7 +96,7 @@ class AcceptTest(unittest.TestCase):
         )
         
     def test_accept_wellformed_must_validate(self):
-        match = ACCEPT_MEDIA_RANGE.match('text/plain')
+        match = ACCEPT.match('text/plain')
 
         self.assertNotEqual(
             match, None,
@@ -104,11 +104,27 @@ class AcceptTest(unittest.TestCase):
         )
         
     def test_accept_wellformed_with_accept_params_must_validate(self):
-        match = ACCEPT_MEDIA_RANGE.match('text/plain; q=0.8')
+        match = ACCEPT.match('text/plain; q=0.8')
 
         self.assertNotEqual(
             match, None,
             "ACCEPT wellformed must validate"
+        )
+        
+    def test_accept_multiple_types(self):
+        match = ACCEPT.match('text/plain; q=0.8, xml/plain')
+        
+        self.assertNotEqual(
+            match, None,
+            "ACCEPT must validate with multiple types"
+        )
+        
+    def test_accept_must_validate_with_plus_symbols(self):
+        match = ACCEPT.match('text/xhtml+xml')
+        
+        self.assertNotEqual(
+            match, None,
+            "ACCEPT must validate with plus symbols"
         )
 
 if __name__ == '__main__':

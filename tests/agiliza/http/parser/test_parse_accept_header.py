@@ -54,6 +54,19 @@ class ParseAcceptHeaderTest(unittest.TestCase):
             },
             "ACCEPT HEADER do not accept multiple types",
         )
+        
+    def test_must_accept_multiple_types_with_plus_symbols(self):
+        parsed_header = parse_accept_header('text/plain; q=0.5,\
+            text/xhtml+xml, text/x-dvi; q=0.8, text/x-c')
+
+        self.assertDictEqual(parsed_header, {
+                'text/plain': 0.5,
+                'text/xhtml+xml': 1.0,
+                'text/x-dvi': 0.8,
+                'text/x-c': 1.0,
+            },
+            "ACCEPT HEADER do not accept multiple types with plus symbols",
+        )
 
     def test_must_not_validate_without_semicolon(self):
         with self.assertRaises(HttpAcceptHeaderParserException,
