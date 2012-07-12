@@ -75,6 +75,7 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5,
 import cgi
 import urllib
 
+from agiliza.http.exceptions import HttpNegativeContentLengthException
 from agiliza.http.parser import parse_accept_header
 
 
@@ -84,21 +85,25 @@ class HttpRequest(object):
     def __init__(self, environ):
         """Wrap a WSGI environ dictionary."""
         self.meta = environ
-        self.method = self.meta['REQUEST_METHOD']
-        self.path_info = '/' + self.meta.get('PATH_INFO','').lstrip('/')
-        self.query_string = self.meta.get('QUERY_STRING','')
+        self.method = self.meta['REQUEST_METHOD'].upper()
+        self.path_info = '/' + self.meta.get('PATH_INFO', '')\
+            .lstrip('/')
+        self.query_string = self.meta.get('QUERY_STRING', '')
         self.script_name = self.meta.get('SCRIPT_NAME', '')
 
         content_type = self.meta.get('CONTENT_TYPE', '')
         self.content_type, pdict = cgi.parse_header(content_type)
-        self.charset = pdict.get('charset', 'utf-8')  # TODO settings
+        self.charset = pdict.get('charset', 'utf-8') # TODO settings
         try:
             self.content_length = int(
                 self.meta.get('CONTENT_LENGTH', 0))
         except ValueError:
             self.content_length = 0
 
-        accept_hdr = self.meta.get('HTTP_ACCEPT', 'Accept: text/html')  # TODO settings
+        if self.content_length < 0:
+            raise HttpNegativeContentLengthException()
+
+        accept_hdr = self.meta.get('HTTP_ACCEPT', 'text/html') # TODO settings
         self.accept = parse_accept_header(accept_hdr)
         self._stream = self.meta['wsgi.input']
         # Cached values
@@ -150,10 +155,10 @@ class HttpRequest(object):
         from urllib.parse import quote
         url = self.meta['wsgi.url_scheme'] + '://'
         url += self.get_host()
-        url += quote(self.meta.get('SCRIPT_NAME', ''))
-        url += quote(self.meta.get('PATH_INFO', ''))
-        if self.meta.get('QUERY_STRING'):
-            url += '?' + self.meta['QUERY_STRING']
+        url += quote(self.script_name)
+        url += quote(self.path_info)
+        if self.query_string:
+            url += '?' + self.query_string
 
         self._full_path = url
         return url
@@ -164,7 +169,7 @@ class HttpRequest(object):
             return self._query
 
         self._query = urllib.parse.parse_qs(
-            self.meta.get('QUERY_STRING',''),
+            self.query_string,
             keep_blank_values=True
         )
         return self._query
