@@ -18,43 +18,35 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 import unittest
-from agiliza.http.exceptions import HttpAcceptHeaderParserException
-from agiliza.http.parser import parse_accept_header
+
+from agiliza.http.parser.expressions import ACCEPT_MEDIA_RANGE
 
 
 class ExpressionsTest(unittest.TestCase):
 
-    def test_accept_is_valid(self):
-        parsed_header = parse_accept_header('Accept:*/*')
+    def test_accept_media_range_must_match_all_types(self):
+        match = ACCEPT_MEDIA_RANGE.match('*/*')
 
-        self.assertDictEqual(
-            parsed_header, { '*/*': 1.0 },
-            "Does not accept all types"
+        self.assertNotEqual(
+            None, match,
+            "ACCEPT_MEDIA_RANGE does not accept all types"
         )
 
-    def test_must_not_validate_some_text(self):
-        with self.assertRaises(HttpAcceptHeaderParserException):
-            parse_accept_header('Some text')
+    def test_accept_media_range_must_accept_parameters(self):
+        match = ACCEPT_MEDIA_RANGE.match('text/x-dvi; q=0.8')
 
-    def test_must_not_validate_only_a_type(self):
-        with self.assertRaises(HttpAcceptHeaderParserException):
-            parse_accept_header('Accept:text')
-
-    def test_must_accept_multiple_types(self):
-        parsed_header = parse_accept_header('Accept: text/plain; q=0.5,\
-            text/html, text/x-dvi; q=0.8, text/x-c')
-
-        self.assertDictEqual(parsed_header, {
-                'text/plain': 0.5,
-                'text/html': 1.0,
-                'text/x-dvi': 0.8,
-                'text/x-c': 1.0,
-            }
+        self.assertNotEqual(
+            None, match,
+            "ACCEPT_MEDIA_RANGE does not accept parameters"
         )
 
-    def test_must_not_validate_without_semicolon(self):
-        with self.assertRaises(HttpAcceptHeaderParserException):
-            parse_accept_header('Accept: text/plain q=0.5')
+    def test_accept_media_range_must_not_match_some_text(self):
+        match = ACCEPT_MEDIA_RANGE.match('Some text')
+
+        self.assertEqual(
+            None, match,
+            "ACCEPT_MEDIA_RANGE accepts some text"
+        )
 
 
 if __name__ == '__main__':
