@@ -28,7 +28,7 @@ class ExpressionsTest(unittest.TestCase):
         match = ACCEPT_MEDIA_RANGE.match('*/*')
 
         self.assertNotEqual(
-            None, match,
+            match, None,
             "ACCEPT_MEDIA_RANGE does not accept all types"
         )
 
@@ -36,7 +36,7 @@ class ExpressionsTest(unittest.TestCase):
         match = ACCEPT_MEDIA_RANGE.match('text/x-dvi; q=0.8')
 
         self.assertNotEqual(
-            None, match,
+            match, None,
             "ACCEPT_MEDIA_RANGE does not accept parameters"
         )
 
@@ -44,8 +44,29 @@ class ExpressionsTest(unittest.TestCase):
         match = ACCEPT_MEDIA_RANGE.match('Some text')
 
         self.assertEqual(
-            None, match,
+            match, None,
             "ACCEPT_MEDIA_RANGE accepts some text"
+        )
+
+    def test_accept_media_range_must_fetch_right_values(self):
+        match = ACCEPT_MEDIA_RANGE.match('text/plain; q=0.5')
+
+        media_type = match.group('type') or '*'
+        media_subtype = match.group('subtype') or '*'
+        media_q = float(match.group('q') or 1.0)
+
+        match_dict = {
+            'type': media_type,
+            'subtype': media_subtype,
+            'q': media_q
+        }
+
+        self.assertDictEqual(match_dict, {
+                'type': 'text',
+                'subtype': 'plain',
+                'q': 0.5,
+            },
+            "ACCEPT_MEDIA_RANGE does not fetch right values"
         )
 
 
