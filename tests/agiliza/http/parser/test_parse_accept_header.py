@@ -34,13 +34,13 @@ class ParseAcceptHeaderTest(unittest.TestCase):
 
     def test_must_not_validate_some_text(self):
         with self.assertRaises(HttpAcceptHeaderParserException,
-                               "ACCEPT HEADER must not validate 'Some text'"):
+                               msg="ACCEPT HEADER must not validate 'Some text'"):
             parse_accept_header('Some text')
 
     def test_must_not_validate_only_a_type(self):
         with self.assertRaises(HttpAcceptHeaderParserException,
-                               "ACCEPT HEADER must contains subtype"):
-            parse_accept_header('Accept:text')
+                               msg="ACCEPT HEADER must contains subtype"):
+            parse_accept_header('text')
 
     def test_must_accept_multiple_types(self):
         parsed_header = parse_accept_header('text/plain; q=0.5,\
@@ -57,13 +57,13 @@ class ParseAcceptHeaderTest(unittest.TestCase):
 
     def test_must_not_validate_without_semicolon(self):
         with self.assertRaises(HttpAcceptHeaderParserException,
-                               "ACCEPT HEADER must not validate without\
+                               msg="ACCEPT HEADER must not validate without\
                                semicolon"):
             parse_accept_header('text/plain q=0.5')
             
     def test_must_accept_multiple_types_even_one_without_semicolon(self):
         with self.assertRaises(HttpAcceptHeaderParserException,
-                               "ACCEPT HEADER must not validate without\
+                               msg="ACCEPT HEADER must not validate without\
                                semicolon even with multiple types"):
             parsed_header = parse_accept_header('text/plain q=0.5,\
                 text/html, text/x-dvi; q=0.8, text/x-c')
