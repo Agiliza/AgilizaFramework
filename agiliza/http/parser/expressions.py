@@ -16,6 +16,7 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
+Copyright (c) 2012 Alvaro Hurtado <alvarohurtado84@gmail.com>
 """
 import re
 
