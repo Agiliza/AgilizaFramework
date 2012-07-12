@@ -18,35 +18,36 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4
+from agiliza.http.exceptions import HttpResponseException
 from agiliza.http.response import HttpResponse
 
 
-class HttpResponseBadRequest(HttpResponse):
+class HttpResponseBadRequest(HttpResponse, HttpResponseException):
     status_code = 400
     status_text = 'BAD REQUEST'
 
 
-class HttpResponseUnauthorized(HttpResponse):
+class HttpResponseUnauthorized(HttpResponse, HttpResponseException):
     status_code = 401
     status_text = 'UNAUTHORIZED'
 
 
-class HttpResponsePaymentRequired(HttpResponse):
+class HttpResponsePaymentRequired(HttpResponse, HttpResponseException):
     status_code = 402
     status_text = 'PAYMENT REQUIRED'
 
 
-class HttpResponseForbidden(HttpResponse):
+class HttpResponseForbidden(HttpResponse, HttpResponseException):
     status_code = 403
     status_text = 'FORBIDDEN'
 
 
-class HttpResponseNotFound(HttpResponse):
+class HttpResponseNotFound(HttpResponse, HttpResponseException):
     status_code = 404
     status_text = 'NOT FOUND'
 
 
-class HttpResponseMethodNotAllowed(HttpResponse):
+class HttpResponseMethodNotAllowed(HttpResponse, HttpResponseException):
     status_code = 405
     status_text = 'METHOD NOT ALLOWED'
 
@@ -55,61 +56,61 @@ class HttpResponseMethodNotAllowed(HttpResponse):
         self['Allow'] = ', '.join(permitted_methods)
 
 
-class HttpResponseNotAcceptable(HttpResponse):
+class HttpResponseNotAcceptable(HttpResponse, HttpResponseException):
     status_code = 406
     status_text = 'NOT ACCEPTABLE'
 
 
-class HttpResponseProxyAuthenticationRequired(HttpResponse):
+class HttpResponseProxyAuthenticationRequired(HttpResponse, HttpResponseException):
     status_code = 407
     status_text = 'PROXY AUTHENTICATION REQUIRED'
 
 
-class HttpResponseRequestTimeout(HttpResponse):
+class HttpResponseRequestTimeout(HttpResponse, HttpResponseException):
     status_code = 408
     status_text = 'REQUEST TIMEOUT'
 
 
-class HttpResponseConflict(HttpResponse):
+class HttpResponseConflict(HttpResponse, HttpResponseException):
     status_code = 409
     status_text = 'CONFLICT'
 
 
-class HttpResponseGone(HttpResponse):
+class HttpResponseGone(HttpResponse, HttpResponseException):
     status_code = 410
     status_text = 'GONE'
 
 
-class HttpResponseLengthRequired(HttpResponse):
+class HttpResponseLengthRequired(HttpResponse, HttpResponseException):
     status_code = 411
     status_text = 'LENGTH REQUIRED'
 
 
-class HttpResponsePreconditionFailed(HttpResponse):
+class HttpResponsePreconditionFailed(HttpResponse, HttpResponseException):
     status_code = 412
     status_text = 'PRECONDITION FAILED'
 
 
-class HttpResponseRequestEntityTooLarge(HttpResponse):
+class HttpResponseRequestEntityTooLarge(HttpResponse, HttpResponseException):
     status_code = 413
     status_text = 'REQUEST ENTITY TOO LARGE'
 
 
-class HttpResponseRequestURITooLong(HttpResponse):
+class HttpResponseRequestURITooLong(HttpResponse, HttpResponseException):
     status_code = 414
     status_text = 'REQUEST-URI TOO LONG'
 
 
-class HttpResponseUnsupportedMediaType(HttpResponse):
+class HttpResponseUnsupportedMediaType(HttpResponse, HttpResponseException):
     status_code = 415
     status_text = 'UNSUPPORTED MEDIA TYPE'
 
 
-class HttpResponseRequestedRangeNotSatisfiable(HttpResponse):
+class HttpResponseRequestedRangeNotSatisfiable(HttpResponse, HttpResponseException):
     status_code = 416
     status_text = 'REQUESTED RANGE NOT SATISFIABLE'
 
 
-class HttpResponseExpectationFailed(HttpResponse):
+class HttpResponseExpectationFailed(HttpResponse, HttpResponseException):
     status_code = 417
     status_text = 'EXPECTATION FAILED'

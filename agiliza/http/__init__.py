@@ -27,8 +27,7 @@ from agiliza.http.client_error import (HttpResponseBadRequest,
     HttpResponseRequestURITooLong, HttpResponseUnsupportedMediaType,
     HttpResponseRequestedRangeNotSatisfiable,
     HttpResponseExpectationFailed)
-from agiliza.http.exceptions import (HttpException,
-    HttpMethodNotAllowedException, HttpNotAcceptableException)
+from agiliza.http.exceptions import (HttpParserException, HttpResponseException)
 from agiliza.http.informational import (HttpResponseContinue,
     HttpResponseSwitchingProtocols)
 from agiliza.http.redirection import (HttpResponseMultipleChoices,
@@ -47,3 +46,53 @@ from agiliza.http.successful import (HttpResponseOk,
 
 HTTP_METHODS = ('GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS',
     'TRACE', 'CONNECT')
+
+
+## Shortcuts
+
+# Informational
+Http100 = HttpResponseContinue
+Http101 = HttpResponseSwitchingProtocols
+# Successful
+Http200 = HttpResponseOk
+Http201 = HttpResponseCreated
+Http202 = HttpResponseAccepted
+Http203 = HttpResponseNonAuthoritativeInformation
+Http204 = HttpResponseNoContent
+Http205 = HttpResponseResetContent
+Http206 = HttpResponsePartialContent
+# Redirection
+Http300 = HttpResponseMultipleChoices
+Http301 = HttpResponseMovedPermanently
+Http302 = HttpResponseFound
+Http303 = HttpResponseSeeOther
+Http304 = HttpResponseNotModified
+Http305 = HttpResponseUseProxy
+Http307 = HttpResponseTemporaryRedirect
+# Client error
+Http400 = HttpResponseBadRequest
+Http401 = HttpResponseUnauthorized
+Http402 = HttpResponsePaymentRequired
+Http403 = HttpResponseForbidden
+Http404 = HttpResponseNotFound
+Http405 = HttpResponseMethodNotAllowed
+Http406 = HttpResponseNotAcceptable
+Http407 = HttpResponseProxyAuthenticationRequired
+Http408 = HttpResponseRequestTimeout
+Http409 = HttpResponseConflict
+Http410 = HttpResponseGone
+Http411 = HttpResponseLengthRequired
+Http412 = HttpResponsePreconditionFailed
+Http413 = HttpResponseRequestEntityTooLarge
+Http414 = HttpResponseRequestURITooLong
+Http415 = HttpResponseUnsupportedMediaType
+Http416 = HttpResponseRequestedRangeNotSatisfiable
+Http417 = HttpResponseExpectationFailed
+# Server error
+Http500 = HttpResponseInternalServerError
+Http501 = HttpResponseNotImplemented
+Http502 = HttpResponseBadGateway
+Http503 = HttpResponseServiceUnavailable
+Http504 = HttpResponseGatewayTimeout
+Http505 = HttpResponseHTTPVersionNotSupported
+
