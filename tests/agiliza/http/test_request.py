@@ -32,22 +32,22 @@ class HttpRequestTest(unittest.TestCase):
             'SCRIPT_NAME': '',
             'REQUEST_METHOD': 'GET',
             'QUERY_STRING': '',
+            'SERVER_NAME': 'tx2500',
             'SERVER_PORT': '8888',
-            'HTTP_ACCEPT_ENCODING': 'gzip, deflate',
+            'REMOTE_HOST': 'localhost',
             'REMOTE_ADDR': '127.0.0.1',
+            'CONTENT_TYPE': 'text/plain',
             'CONTENT_LENGTH': '',
             'HTTP_CONNECTION': 'keep-alive',
-            'CONTENT_TYPE': 'text/plain',
             'HTTP_CACHE_CONTROL': 'max-age=0',
+            'HTTP_ACCEPT_ENCODING': 'gzip, deflate',
             'HTTP_USER_AGENT': 'Mozilla/5.0 (Linux x86_64; rv:13.0)',
             'HTTP_HOST': 'localhost:8888',
             'HTTP_ACCEPT': 'text/html,application/xhtml+xml,\
                 application/xml;q=0.9,*/*;q=0.8',
-            'SERVER_NAME': 'tx2500',
             'GATEWAY_INTERFACE': 'CGI/1.1',
             'HTTP_ACCEPT_LANGUAGE': 'es-es,es;q=0.8,en-us;\
                 q=0.5,en;q=0.3',
-            'REMOTE_HOST': 'localhost',
             'PATH_INFO': '/',
         }
 
@@ -101,6 +101,107 @@ class HttpRequestTest(unittest.TestCase):
             "Script name is incorrect in HttpRequest"
         )
 
+    def test_request_must_be_xhr(self):
+        environ = self.get_wsgi_environ()
+        environ['HTTP_X_REQUESTED_WITH'] = 'XMLHTTPRequest'
+        request = HttpRequest(environ)
+
+        self.assertTrue(request.is_xhr(), "Request must be xhr")
+
+    def test_request_must_be_ajax(self):
+        environ = self.get_wsgi_environ()
+        environ['HTTP_X_REQUESTED_WITH'] = 'XMLHTTPRequest'
+        request = HttpRequest(environ)
+
+        self.assertTrue(request.is_ajax(), "Request must be ajax")
+
+    def test_request_must_be_secure(self):
+        environ = self.get_wsgi_environ()
+        environ['wsgi.url_scheme'] = 'https'
+        request = HttpRequest(environ)
+
+        self.assertTrue(request.is_secure(), "Request must be secure")
+
+    def test_host_through_http_host(self):
+        environ = self.get_wsgi_environ()
+        environ['HTTP_HOST'] = 'agiliza.com'
+        request = HttpRequest(environ)
+
+        self.assertEqual(
+            request.get_host(),
+            'agiliza.com',
+            "Host name is wrong"
+        )
+
+    def test_cached_host_through_http_host(self):
+        environ = self.get_wsgi_environ()
+        environ['HTTP_HOST'] = 'agiliza.com'
+        request = HttpRequest(environ)
+        host = request.get_host()
+        cached_host = request.get_host()
+
+        self.assertEqual(
+            cached_host,
+            'agiliza.com',
+            "Host name is wrong"
+        )
+
+    def test_host_through_server_name(self):
+        environ = self.get_wsgi_environ()
+        del environ['HTTP_HOST']
+        environ['SERVER_PORT'] = '80'
+        environ['SERVER_NAME'] = 'agiliza.com'
+        environ['wsgi.url_scheme'] = 'http'
+        request = HttpRequest(environ)
+
+        self.assertEqual(
+            request.get_host(),
+            'agiliza.com',
+            "Host name is wrong"
+        )
+
+    def test_host_through_server_name_with_different_port(self):
+        environ = self.get_wsgi_environ()
+        del environ['HTTP_HOST']
+        environ['SERVER_PORT'] = '8080'
+        environ['SERVER_NAME'] = 'agiliza.com'
+        environ['wsgi.url_scheme'] = 'http'
+        request = HttpRequest(environ)
+
+        self.assertEqual(
+            request.get_host(),
+            'agiliza.com:8080',
+            "Host name is wrong"
+        )
+
+    def test_secure_host_through_server_name(self):
+        environ = self.get_wsgi_environ()
+        del environ['HTTP_HOST']
+        environ['SERVER_PORT'] = '443'
+        environ['SERVER_NAME'] = 'agiliza.com'
+        environ['wsgi.url_scheme'] = 'https'
+        request = HttpRequest(environ)
+
+        self.assertEqual(
+            request.get_host(),
+            'agiliza.com',
+            "Host name is wrong"
+        )
+
+    def test_secure_host_through_server_name_with_different_port(self):
+        environ = self.get_wsgi_environ()
+        del environ['HTTP_HOST']
+        environ['SERVER_PORT'] = '9999'
+        environ['SERVER_NAME'] = 'agiliza.com'
+        environ['wsgi.url_scheme'] = 'https'
+        request = HttpRequest(environ)
+
+        self.assertEqual(
+            request.get_host(),
+            'agiliza.com:9999',
+            "Host name is wrong"
+        )
+
     def test_query_must_be_correct(self):
         environ = self.get_wsgi_environ()
         environ['QUERY_STRING'] = 'field1=value1&field2=value2'
@@ -109,6 +210,21 @@ class HttpRequestTest(unittest.TestCase):
         query = request.query
 
         self.assertDictEqual(query, {
+                'field1': ['value1'],
+                'field2': ['value2'],
+            },
+            "Query does not fetch right values"
+        )
+
+    def test_query_must_be_cached(self):
+        environ = self.get_wsgi_environ()
+        environ['QUERY_STRING'] = 'field1=value1&field2=value2'
+
+        request = HttpRequest(environ)
+        query = request.query
+        query2 = request.query
+
+        self.assertDictEqual(query2, {
                 'field1': ['value1'],
                 'field2': ['value2'],
             },

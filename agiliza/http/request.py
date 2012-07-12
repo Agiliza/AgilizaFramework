@@ -135,7 +135,8 @@ class HttpRequest(object):
             return self._host
 
         if 'HTTP_HOST' in self.meta:
-            return self.meta['HTTP_HOST']
+            self._host = self.meta['HTTP_HOST']
+            return self._host
         host = self.meta['SERVER_NAME']
 
         if self.meta['wsgi.url_scheme'] == 'https':
