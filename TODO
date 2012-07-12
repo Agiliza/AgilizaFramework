@@ -16,6 +16,11 @@ Accept-Encoding
 * Authorization
 * Other headers: ETag, Retry-After, If-Match, ...
 
+* HTTP Response
+---------------
+* Raising with error codes to rendering default error templates
+* Adding alias for Responses (HttpNotFound can be Http404)
+
 Bundles
 =======
 * Bundles dependencies
