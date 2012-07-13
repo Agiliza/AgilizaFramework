@@ -19,9 +19,11 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 import inspect
 import importlib
+from functools import reduce
 
 from agiliza.core.config.exceptions import (InvalidApplicationException,
-    ConfigMissingInApplicationException)
+    BadApplicationConfigurationException, InvalidMiddlewareException,
+    BadMiddlewareException)
 
 
 class ConfigRunner(object):
@@ -29,6 +31,47 @@ class ConfigRunner(object):
         self.installed_apps = self._get_installed_apps(
             config_module.installed_apps
         )
+
+        self.middleware_level0 = self._get_middleware_list(
+            config_module.middleware_level0,
+            ('process_request', 'process_response'),
+        )
+
+        self.middleware_level1 = self._get_middleware_list(
+            config_module.middleware_level1,
+            ('process_controller', 'process_template'),
+        )
+
+    def _get_middleware_list(self, middleware_level, middleware_methods):
+        middleware_list = []
+        for middleware_name in middleware_level:
+            if isinstance(middleware_name, str):
+                parts = middleware_name.split('.')
+                attr_name = parts[-1]
+                module_name = reduce(lambda x, y: x + '.' + y, parts[0:-1])
+                try:
+                    module = importlib.import_module(module_name)
+                except ImportError as error:
+                    raise InvalidMiddlewareException(error)
+
+                middleware = getattr(module, attr_name, None)
+            else:
+                middleware = middleware_name
+
+            any_method = any([
+                    getattr(middleware, method, None)
+                    for method in middleware_methods
+            ])
+
+            if not any_method:
+                raise BadMiddlewareException(
+                    '"%s" middleware must have any method to process \
+                    in this level' % middleware_name
+                )
+
+            middleware_list.append(middleware)
+
+        return tuple(middleware_list)
 
     def _get_installed_apps(self, config_installed_apps):
         installed_apps = []
@@ -46,7 +89,7 @@ class ConfigRunner(object):
                 )
 
             if not getattr(app, 'config', None):
-                raise ConfigMissingInApplicationException(
+                raise BadApplicationConfigurationException(
                     '"%s" application does not have a config module' % app_name
                 )
 

@@ -21,8 +21,8 @@ import importlib
 import unittest
 
 from agiliza.core.config import ConfigRunner
-from agiliza.core.config.exceptions import (InvalidApplicationException,
-    ConfigMissingInApplicationException)
+from agiliza.core.config.exceptions import *
+from tests.agiliza.core.middleware_examples import *
 
 
 class ConfigRunnerTest(unittest.TestCase):
@@ -95,10 +95,122 @@ class ConfigRunnerTest(unittest.TestCase):
         config_module = self.get_config_module()
         config_module.installed_apps.append('sys')
 
-        with self.assertRaises(ConfigMissingInApplicationException,
-            msg="Must be raise a ConfigMissingInApplicationException"):
+        with self.assertRaises(BadApplicationConfigurationException,
+            msg="Must be raise a BadApplicationConfigurationException"):
 
             ConfigRunner(config_module)
+
+
+    def test_config_must_load_a_empty_list_level0(self):
+        config_module = self.get_config_module()
+        config = ConfigRunner(config_module)
+
+        self.assertEqual(
+            config.middleware_level0, (),
+            "ConfigRunner does not load a empty list"
+        )
+
+    def test_config_must_load_a_middleware_list_level0(self):
+        config_module = self.get_config_module()
+        config_module.middleware_level0.append(
+            'tests.agiliza.core.middleware_examples.MiddlewareLevel0Example1'
+        )
+        config_module.middleware_level0.append(
+            'tests.agiliza.core.middleware_examples.MiddlewareLevel0Example2'
+        )
+        config_module.middleware_level0.append(
+            'tests.agiliza.core.middleware_examples.MiddlewareLevel0Example3'
+        )
+
+        config = ConfigRunner(config_module)
+
+        self.assertEqual(
+            config.middleware_level0, (
+                MiddlewareLevel0Example1,
+                MiddlewareLevel0Example2,
+                MiddlewareLevel0Example3,
+            ),
+            "ConfigRunner does not load a middleware list"
+        )
+
+    def test_config_must_not_load_bad_middleware_level0(self):
+        config_module = self.get_config_module()
+        config_module.middleware_level0.append(
+            'tests.agiliza.core.middleware_examples.MiddlewareBadExample'
+        )
+
+        with self.assertRaises(BadMiddlewareException,
+            msg="Must be raise a BadMiddlewareException"):
+
+            ConfigRunner(config_module)
+
+    def test_config_must_load_a_class_level0(self):
+        import agiliza.core
+        config_module = self.get_config_module()
+        config_module.middleware_level0.append(MiddlewareLevel0Example1)
+
+        config = ConfigRunner(config_module)
+
+        self.assertEqual(
+            config.middleware_level0, (MiddlewareLevel0Example1,),
+            "ConfigRunner does not load middleware_level0"
+        )
+
+
+    def test_config_must_load_a_empty_list_level1(self):
+        config_module = self.get_config_module()
+        config = ConfigRunner(config_module)
+
+        self.assertEqual(
+            config.middleware_level1, (),
+            "ConfigRunner does not load a empty list"
+        )
+
+    def test_config_must_load_a_middleware_list_level1(self):
+        config_module = self.get_config_module()
+        config_module.middleware_level1.append(
+            'tests.agiliza.core.middleware_examples.MiddlewareLevel1Example1'
+        )
+        config_module.middleware_level1.append(
+            'tests.agiliza.core.middleware_examples.MiddlewareLevel1Example2'
+        )
+        config_module.middleware_level1.append(
+            'tests.agiliza.core.middleware_examples.MiddlewareLevel1Example3'
+        )
+
+        config = ConfigRunner(config_module)
+
+        self.assertEqual(
+            config.middleware_level1, (
+                MiddlewareLevel1Example1,
+                MiddlewareLevel1Example2,
+                MiddlewareLevel1Example3,
+            ),
+            "ConfigRunner does not load a middleware list"
+        )
+
+    def test_config_must_not_load_bad_middleware_level1(self):
+        config_module = self.get_config_module()
+        config_module.middleware_level1.append(
+            'tests.agiliza.core.middleware_examples.MiddlewareBadExample'
+        )
+
+        with self.assertRaises(BadMiddlewareException,
+            msg="Must be raise a BadMiddlewareException"):
+
+            ConfigRunner(config_module)
+
+    def test_config_must_load_a_class_level1(self):
+        import agiliza.core
+        config_module = self.get_config_module()
+        config_module.middleware_level1.append(MiddlewareLevel1Example1)
+
+        config = ConfigRunner(config_module)
+
+        self.assertEqual(
+            config.middleware_level1, (MiddlewareLevel1Example1,),
+            "ConfigRunner does not load middleware_level1"
+        )
 
 if __name__ == '__main__':
     unittest.main()

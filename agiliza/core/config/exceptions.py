@@ -20,11 +20,22 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 class ConfigRunnerException(Exception):
     """This exception is a base for all ``ConfigRunner`` exceptions."""
 
+
 class InvalidApplicationException(ConfigRunnerException):
     """This exception is launched by ``ConfigRunner`` when it can't load an
     application from ``installed_apps``."""
 
-class ConfigMissingInApplicationException(ConfigRunnerException):
+class BadApplicationConfigurationException(ConfigRunnerException):
     """This exception is launched by ``ConfigRunner`` when it load an
     application from ``installed_apps`` and this application doesn't have a
     ``config`` module."""
+
+
+class InvalidMiddlewareException(ConfigRunnerException):
+    """This exception is launched by ``ConfigRunner`` when it can't load a
+    middleware from middleware list."""
+
+class BadMiddlewareException(ConfigRunnerException):
+    """This exception is launched by ``ConfigRunner`` when it load a
+    middleware from middleware list and this middleware doesn't have any method
+    to process in its level."""
