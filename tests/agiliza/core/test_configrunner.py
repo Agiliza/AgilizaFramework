@@ -91,7 +91,16 @@ class ConfigRunnerTest(unittest.TestCase):
 
             ConfigRunner(config_module)
 
-    def test_must_raise_config_missing_in_application_exception(self):
+    def test_config_must_load_a_empty_application_list(self):
+        config_module = self.get_config_module()
+        config = ConfigRunner(config_module)
+
+        self.assertEqual(
+            config.installed_apps, (),
+            "ConfigRunner does not load a empty list"
+        )
+
+    def test_must_raise_bad_application_configuration_exception(self):
         config_module = self.get_config_module()
         config_module.installed_apps.append('sys')
 
@@ -100,6 +109,15 @@ class ConfigRunnerTest(unittest.TestCase):
 
             ConfigRunner(config_module)
 
+
+    def test_config_must_raise_invalid_middleware_exception_level0(self):
+        config_module = self.get_config_module()
+        config_module.middleware_level0.append('invalid.middleware.test')
+
+        with self.assertRaises(InvalidMiddlewareException,
+            msg="Must be raise a InvalidMiddlewareException"):
+
+            ConfigRunner(config_module)
 
     def test_config_must_load_a_empty_list_level0(self):
         config_module = self.get_config_module()
@@ -156,6 +174,15 @@ class ConfigRunnerTest(unittest.TestCase):
             "ConfigRunner does not load middleware_level0"
         )
 
+
+    def test_config_must_raise_invalid_middleware_exception_level1(self):
+        config_module = self.get_config_module()
+        config_module.middleware_level1.append('invalid.middleware.test')
+
+        with self.assertRaises(InvalidMiddlewareException,
+            msg="Must be raise a InvalidMiddlewareException"):
+
+            ConfigRunner(config_module)
 
     def test_config_must_load_a_empty_list_level1(self):
         config_module = self.get_config_module()
