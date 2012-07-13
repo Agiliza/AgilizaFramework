@@ -17,4 +17,14 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-from agiliza.core.config.runner import ConfigRunner
+class ConfigRunnerException(Exception):
+    """This exception is a base for all ``ConfigRunner`` exceptions."""
+
+class InvalidApplicationException(ConfigRunnerException):
+    """This exception is launched by ``ConfigRunner`` when it can't load an
+    application from ``installed_apps``."""
+
+class ConfigMissingInApplicationException(ConfigRunnerException):
+    """This exception is launched by ``ConfigRunner`` when it load an
+    application from ``installed_apps`` and this application doesn't have a
+    ``config`` module."""
