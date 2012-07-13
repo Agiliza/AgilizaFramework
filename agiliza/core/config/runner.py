@@ -42,6 +42,10 @@ class ConfigRunner(object):
             ('process_controller', 'process_template'),
         )
 
+        urls = []
+
+        self.urls = urls
+
     def _get_middleware_list(self, middleware_level, middleware_methods):
         middleware_list = []
         for middleware_name in middleware_level:
