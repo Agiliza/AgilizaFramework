@@ -24,125 +24,30 @@ from agiliza import http
 
 class HttpResponseTest(unittest.TestCase):
 
-    def test_raise_400(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http400
+    def test_content_type_must_be_correct(self):
+        response = http.Http200(content_type='text/html; charset=ascii')
 
-    def test_raise_401(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http401
+        self.assertEqual(
+            response.content_type, 'text/html',
+            "Content type must be correct"
+        )
 
-    def test_raise_402(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http402
+    def test_content_could_be_iterable(self):
+        response = http.Http200(content=['line1', 'line2'])
 
-    def test_raise_403(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http403
+        self.assertEqual(
+            response._content, ['line1', 'line2'],
+            "Content type could be iterable"
+        )
 
-    def test_raise_404(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http404
+    def test_response_must_be_printable(self):
+        response = http.Http200()
 
-    def test_raise_405(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http405(['GET',])
+        self.assertEqual(
+            str(response), 'HttpResponse <200, OK>',
+            "Response must be printable"
+        )
 
-    def test_raise_406(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http406
-
-    def test_raise_407(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http407
-
-    def test_raise_408(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http408
-
-    def test_raise_409(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http409
-
-    def test_raise_410(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http410
-
-    def test_raise_411(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http411
-
-    def test_raise_412(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http412
-
-    def test_raise_413(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http413
-
-    def test_raise_414(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http414
-
-    def test_raise_415(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http415
-
-    def test_raise_416(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http416
-
-    def test_raise_417(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http417
-
-    def test_raise_500(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http500
-
-    def test_raise_501(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http501
-
-    def test_raise_502(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http502
-
-    def test_raise_503(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http503
-
-    def test_raise_504(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http504
-
-    def test_raise_505(self):
-        with self.assertRaises(http.HttpResponseException,
-            msg="Must be raise a HttpResponseException"):
-            raise http.Http505
 
 if __name__ == '__main__':
     unittest.main()

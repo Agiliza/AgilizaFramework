@@ -138,5 +138,4 @@ class HttpResponse(metaclass=abc.ABCMeta):
         return self._headers[header.lower()][1]
 
     def __str__(self):
-        return 'HttpResponse <%s, %s>' % (
-            self.status_code, self.status_text)
+        return 'HttpResponse <%s, %s>' % (self.status_code, self.status_text)

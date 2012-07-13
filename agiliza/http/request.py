@@ -81,6 +81,7 @@ from agiliza.http.parser import parse_accept_header
 
 class HttpRequest(object):
     """A basic HTTP request."""
+    VERSION = '1.1'
 
     def __init__(self, environ):
         """Wrap a WSGI environ dictionary."""
@@ -200,3 +201,7 @@ class HttpRequest(object):
                 self._files[key] = value
 
         return self._files
+
+    def __str__(self):
+        return 'HttpRequest <%s %s HTTP/%s>' % (
+            self.method, self.path_info, self.VERSION)

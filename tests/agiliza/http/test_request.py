@@ -259,6 +259,17 @@ class HttpRequestTest(unittest.TestCase):
             msg="Content length is negative"):
             request = HttpRequest(environ)
 
+    def test_request_must_be_printable(self):
+        environ = self.get_wsgi_environ()
+        environ['REQUEST_METHOD'] = 'POST'
+        environ['PATH_INFO'] = '/myapp'
+        request = HttpRequest(environ)
+
+        self.assertEqual(
+            str(request), 'HttpRequest <POST /myapp HTTP/%s>' % request.VERSION,
+            "Response must be printable"
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
