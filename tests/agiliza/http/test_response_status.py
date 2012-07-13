@@ -330,6 +330,381 @@ class HttpResponseStatusTest(unittest.TestCase):
             "Status code or status text does not mismatch"
         )
 
+    def test_check_status_code_and_status_text_of_500(self):
+        response = http.Http500()
+
+        self.assertEqual(
+            (response.status_code, response.status_text),
+            (500, 'INTERNAL SERVER ERROR'),
+            "Status code or status text does not mismatch"
+        )
+
+    def test_check_status_code_and_status_text_of_501(self):
+        response = http.Http501()
+
+        self.assertEqual(
+            (response.status_code, response.status_text),
+            (501, 'NOT IMPLEMENTED'),
+            "Status code or status text does not mismatch"
+        )
+
+    def test_check_status_code_and_status_text_of_502(self):
+        response = http.Http502()
+
+        self.assertEqual(
+            (response.status_code, response.status_text),
+            (502, 'BAD GATEWAY'),
+            "Status code or status text does not mismatch"
+        )
+
+    def test_check_status_code_and_status_text_of_503(self):
+        response = http.Http503()
+
+        self.assertEqual(
+            (response.status_code, response.status_text),
+            (503, 'SERVICE UNAVAILABLE'),
+            "Status code or status text does not mismatch"
+        )
+
+    def test_check_status_code_and_status_text_of_504(self):
+        response = http.Http504()
+
+        self.assertEqual(
+            (response.status_code, response.status_text),
+            (504, 'GATEWAY TIMEOUT'),
+            "Status code or status text does not mismatch"
+        )
+
+    def test_check_status_code_and_status_text_of_505(self):
+        response = http.Http505()
+
+        self.assertEqual(
+            (response.status_code, response.status_text),
+            (505, 'HTTP VERSION NOT SUPPORTED'),
+            "Status code or status text does not mismatch"
+        )
+
+
+    def test_check_status_of_100(self):
+        response = http.Http100()
+
+        self.assertEqual(
+            response.status, '100 CONTINUE',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_101(self):
+        response = http.Http101()
+
+        self.assertEqual(
+            response.status, '101 SWITCHING PROTOCOLS',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_200(self):
+        response = http.Http200()
+
+        self.assertEqual(
+            response.status, '200 OK',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_201(self):
+        response = http.Http201()
+
+        self.assertEqual(
+            response.status, '201 CREATED',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_202(self):
+        response = http.Http202()
+
+        self.assertEqual(
+            response.status, '202 ACCEPTED',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_203(self):
+        response = http.Http203()
+
+        self.assertEqual(
+            response.status, '203 NON-AUTHORITATIVE INFORMATION',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_204(self):
+        response = http.Http204()
+
+        self.assertEqual(
+            response.status, '204 NO CONTENT',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_205(self):
+        response = http.Http205()
+
+        self.assertEqual(
+            response.status, '205 RESET CONTENT',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_206(self):
+        response = http.Http206()
+
+        self.assertEqual(
+            response.status, '206 PARTIAL CONTENT',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_300(self):
+        response = http.Http300('/redirect/to')
+
+        self.assertEqual(
+            response.status, '300 MULTIPLE CHOICES',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_301(self):
+        response = http.Http301('/redirect/to')
+
+        self.assertEqual(
+            response.status, '301 MOVED PERMANENTLY',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_302(self):
+        response = http.Http302('/redirect/to')
+
+        self.assertEqual(
+            response.status, '302 FOUND',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_303(self):
+        response = http.Http303('/redirect/to')
+
+        self.assertEqual(
+            response.status, '303 SEE OTHER',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_304(self):
+        response = http.Http304()
+
+        self.assertEqual(
+            response.status, '304 NOT MODIFIED',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_305(self):
+        response = http.Http305('/redirect/to')
+
+        self.assertEqual(
+            response.status, '305 USE PROXY',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_307(self):
+        response = http.Http307('/redirect/to')
+
+        self.assertEqual(
+            response.status, '307 TEMPORARY REDIRECT',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_400(self):
+        response = http.Http400()
+
+        self.assertEqual(
+            response.status, '400 BAD REQUEST',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_401(self):
+        response = http.Http401()
+
+        self.assertEqual(
+            response.status, '401 UNAUTHORIZED',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_402(self):
+        response = http.Http402()
+
+        self.assertEqual(
+            response.status, '402 PAYMENT REQUIRED',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_403(self):
+        response = http.Http403()
+
+        self.assertEqual(
+            response.status, '403 FORBIDDEN',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_404(self):
+        response = http.Http404()
+
+        self.assertEqual(
+            response.status, '404 NOT FOUND',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_405(self):
+        response = http.Http405(['GET',])
+
+        self.assertEqual(
+            response.status, '405 METHOD NOT ALLOWED',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_406(self):
+        response = http.Http406()
+
+        self.assertEqual(
+            response.status, '406 NOT ACCEPTABLE',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_407(self):
+        response = http.Http407()
+
+        self.assertEqual(
+            response.status, '407 PROXY AUTHENTICATION REQUIRED',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_408(self):
+        response = http.Http408()
+
+        self.assertEqual(
+            response.status, '408 REQUEST TIMEOUT',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_409(self):
+        response = http.Http409()
+
+        self.assertEqual(
+            response.status, '409 CONFLICT',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_410(self):
+        response = http.Http410()
+
+        self.assertEqual(
+            response.status, '410 GONE',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_411(self):
+        response = http.Http411()
+
+        self.assertEqual(
+            response.status, '411 LENGTH REQUIRED',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_412(self):
+        response = http.Http412()
+
+        self.assertEqual(
+            response.status, '412 PRECONDITION FAILED',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_413(self):
+        response = http.Http413()
+
+        self.assertEqual(
+            response.status, '413 REQUEST ENTITY TOO LARGE',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_414(self):
+        response = http.Http414()
+
+        self.assertEqual(
+            response.status, '414 REQUEST-URI TOO LONG',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_415(self):
+        response = http.Http415()
+
+        self.assertEqual(
+            response.status, '415 UNSUPPORTED MEDIA TYPE',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_416(self):
+        response = http.Http416()
+
+        self.assertEqual(
+            response.status, '416 REQUESTED RANGE NOT SATISFIABLE',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_417(self):
+        response = http.Http417()
+
+        self.assertEqual(
+            response.status, '417 EXPECTATION FAILED',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_500(self):
+        response = http.Http500()
+
+        self.assertEqual(
+            response.status, '500 INTERNAL SERVER ERROR',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_501(self):
+        response = http.Http501()
+
+        self.assertEqual(
+            response.status, '501 NOT IMPLEMENTED',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_502(self):
+        response = http.Http502()
+
+        self.assertEqual(
+            response.status, '502 BAD GATEWAY',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_503(self):
+        response = http.Http503()
+
+        self.assertEqual(
+            response.status, '503 SERVICE UNAVAILABLE',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_504(self):
+        response = http.Http504()
+
+        self.assertEqual(
+            response.status, '504 GATEWAY TIMEOUT',
+            "Status of response is wrong"
+        )
+
+    def test_check_status_of_505(self):
+        response = http.Http505()
+
+        self.assertEqual(
+            response.status, '505 HTTP VERSION NOT SUPPORTED',
+            "Status of response is wrong"
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

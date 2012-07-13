@@ -98,13 +98,13 @@ class HttpResponse(metaclass=abc.ABCMeta):
         self['Content-Type'] = content_type
 
         # Content
-        if isinstance(content, collections.Iterable) and \
-            not isinstance(content, str):
-            self._container = content
-            self._is_string = False
-        else:
-            self._container = [content]
-            self._is_string = True
+        #if isinstance(content, collections.Iterable) and \
+            #not isinstance(content, str):
+            #self._container = content
+            #self._is_string = False
+        #else:
+            #self._container = [content]
+            #self._is_string = True
         self._content = content
 
         # Cookies

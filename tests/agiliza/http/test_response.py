@@ -32,13 +32,23 @@ class HttpResponseTest(unittest.TestCase):
             "Content type must be correct"
         )
 
-    def test_content_could_be_iterable(self):
-        response = http.Http200(content=['line1', 'line2'])
+    def test_content_must_be_correct(self):
+        response = http.Http200(content='my own content')
 
         self.assertEqual(
-            response._content, ['line1', 'line2'],
-            "Content type could be iterable"
+            response._content, 'my own content',
+            "Content must be correct"
         )
+
+    #def test_content_must_be_encode_with_charset(self):
+        #response = http.Http200(
+            #content='my own content',
+            #content_type='text/html; charset=ascii')
+
+        #self.assertEqual(
+            #response.content, 'my own content',
+            #"Content must be correct"
+        #)
 
     def test_response_must_be_printable(self):
         response = http.Http200()
