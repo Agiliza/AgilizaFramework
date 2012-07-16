@@ -18,30 +18,33 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 Copyright (c) 2012 Alvaro Hurtado <alvarohurtado84@gmail.com>
 """
-from agiliza import http
-from agiliza.http import HttpResponseNotFound
-from agiliza.core.handlers.context import ContextManager
-
 import re
 import os
 
+from agiliza import http
+from agiliza.core.config import ConfigRunner
+
+
 class Handler(object):
-    def __init__(self):
-        self.config = object()
+    def __init__(self, config_module=None):
+        if not config_module:
+            config_module = os.environ['AGILIZA_CONFIG']
+
+        self.config = ConfigRunner(config_module)
 
     def dispatch(self, request):
         """Returns an Response object for the given Request."""
-        params = {} # TODO: URL params
+        params = {}
         response = None
 
 
         #"""
         #Execute level-0 Middlewares IN
         #"""
-        for mw in self.config.middleware_level0:
-            mw.process_request(request)
-        
-        
+        for middleware in self.config.middleware_level0:
+            middleware.process_request(request)
+
+
         #"""
         #Select correct URL
         #"""
@@ -53,11 +56,11 @@ class Handler(object):
                 url_regex, url_controller, \
                     url_context_processors, url_name, url_name = url
                 break
-            
+
         if found is False:
-            raise HttpResponseNotFound()
-            
-        
+            raise http.HttpResponseNotFound()
+
+
         #"""
         #Execute controller with request + params + config
         #"""
@@ -68,11 +71,11 @@ class Handler(object):
             session = request.session, #TODO
             cookies = request.cookies, #TODO
         )
-        
+
         if not isinstance(response, http.HttpResponse):
-            
+
             response_data = response
-            
+
             #"""
             #Search apropiate template
             #It is: url_name + [_ + url_layout] + . + accept_subtype
@@ -82,7 +85,7 @@ class Handler(object):
                 key=lambda accept: accept[1],
                 reverse=True
                 )
-            
+
             any_accepted = None
             for accept in accepts:
                 accept_subtype = accept[0].split("/")[1]
@@ -90,18 +93,18 @@ class Handler(object):
                     template_name = url_name+"_" + url_layout + "." + accept_subtype
                 else:
                     template_name = url_name+"."+accept_subtype
-                    
+
                 template_path = self.config.templates + template_name
-    
+
                 if os.path.isfile(template_path):
                     any_accepted = True
                     break
-    
-                
+
+
             if not any_accepted:
                 raise HttpResponseUnsuporttedMediaType()
-            
-            
+
+
             #"""
             #Execute the necessary context_processors
             #"""
@@ -113,7 +116,7 @@ class Handler(object):
                                   self.config.settings,
                                   request.session)
                     )
-    
+
             #"""
             #Render the template with response + request + contexts_info
             #"""
@@ -123,22 +126,22 @@ class Handler(object):
                 context = context_data,
             )
 
-            
+
             response = http.HttpResponse(
                 content = render.render(),
                 content_type = accept,
                 )
-            
-            
+
+
         response.set_cookies(cookies)
-        
+
         #"""
         #Execute level-0 Middlewares OUT
         #"""
-        for mw in self.config.middleware_level0:
-            mw.process_response(request, response)
+        for middleware in self.config.middleware_level0:
+            middleware.process_response(request, response)
 
 
         return response
 
-        
+
