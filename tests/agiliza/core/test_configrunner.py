@@ -19,11 +19,14 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 import importlib
 import unittest
+import re
 import sys
 
 from agiliza.core.config import ConfigRunner
 from agiliza.core.config.exceptions import *
+from agiliza.urls import url, include
 from tests.mocks.config import *
+from tests.mocks.controllers import *
 from tests.mocks.middleware import *
 
 
@@ -66,6 +69,8 @@ class ConfigRunnerTest(unittest.TestCase):
             config.installed_apps, (app,),
             "ConfigRunner does not load installed_apps"
         )
+
+        sys.modules.pop('test_app')
 
     def test_config_must_load_a_module(self):
         app = ApplicationModuleMock()
@@ -145,6 +150,46 @@ class ConfigRunnerTest(unittest.TestCase):
 
         self.assertEqual(
             config.settings, { 'app': 'rocks' },
+            "ConfigRunner does not load app settings"
+        )
+
+    def test_config_must_load_multiple_app_settings(self):
+        app1 = ApplicationModuleMock()
+        app2 = ApplicationModuleMock()
+        app2.config['settings'] = { 'app': 'rocks' }
+
+        self.config_module.installed_apps.append(app1)
+        self.config_module.installed_apps.append(app2)
+
+        config = ConfigRunner(self.config_module)
+
+        self.assertEqual(
+            config.settings, { 'app': 'rocks' },
+            "ConfigRunner does not load app settings"
+        )
+
+    def test_config_must_load_only_project_settings(self):
+        app = ApplicationModuleMock()
+        self.config_module['settings'] = { 'agiliza': 'rocks' }
+        self.config_module.installed_apps.append(app)
+
+        config = ConfigRunner(self.config_module)
+
+        self.assertEqual(
+            config.settings, { 'agiliza': 'rocks' },
+            "ConfigRunner does not load app settings"
+        )
+
+    def test_config_must_load_project_and_app_settings(self):
+        app = ApplicationModuleMock()
+        app.config['settings'] = { 'app': 'rocks' }
+        self.config_module['settings'] = { 'agiliza': 'rocks' }
+        self.config_module.installed_apps.append(app)
+
+        config = ConfigRunner(self.config_module)
+
+        self.assertEqual(
+            config.settings, { 'agiliza': 'rocks', 'app': 'rocks' },
             "ConfigRunner does not load app settings"
         )
 
@@ -250,6 +295,75 @@ class ConfigRunnerTest(unittest.TestCase):
             config.middleware_level1, (CompleteMiddlewareLevel1Mock,),
             "ConfigRunner does not load middleware_level1"
         )
+
+    def test_config_must_load_url_patterns(self):
+        self.config_module.urls = UrlModuleMock(
+            (
+                url('/exp1', 'tests.mocks.controllers.CompleteControllerMock'),
+                url('/exp2', GetControllerMock),
+            )
+        )
+
+        config = ConfigRunner(self.config_module)
+
+        self.assertEqual(
+            config.urls,
+            (
+                (re.compile('^/exp1$'), CompleteControllerMock, (), None, None),
+                (re.compile('^/exp2$'), GetControllerMock, (), None, None),
+            ),
+            "ConfigRunner does not load url patterns"
+        )
+
+    def test_config_must_raise_on_bad_re(self):
+        self.config_module.urls = UrlModuleMock(
+            (
+                url(
+                    '/exp[\w-\b]',
+                    'tests.mocks.controllers.CompleteControllerMock'
+                ),
+            )
+        )
+
+        with self.assertRaises(URLBadformedException,
+            msg="Error on regular expression"):
+
+            ConfigRunner(self.config_module)
+
+    def test_config_must_raise_on_bad_import(self):
+        self.config_module.urls = UrlModuleMock(
+            (
+                url(
+                    '/exp1',
+                    'tests.mocks.controllers.NoReallyMock'
+                ),
+            )
+        )
+
+        with self.assertRaises(ControllerNotFoundException,
+            msg="Controller not found"):
+
+            ConfigRunner(self.config_module)
+
+    def test_config_must_raise_on_bad_context_processor(self):
+        self.config_module.urls = UrlModuleMock(
+            (
+                url(
+                    '/exp1',
+                    'tests.mocks.controllers.CompleteControllerMock',
+                    context_processors=(
+                        'tests.mocks.context_processors.bad_context_processor',
+                    )
+                ),
+            )
+        )
+
+        with self.assertRaises(ContextProcessorNotFoundException,
+            msg="Context processor not found"):
+
+            ConfigRunner(self.config_module)
+
+
 
 if __name__ == '__main__':
     unittest.main()

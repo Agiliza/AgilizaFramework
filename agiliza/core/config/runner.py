@@ -23,12 +23,12 @@ import re
 from functools import reduce
 
 from agiliza.urls import include
-
 from agiliza.core.config.exceptions import (InvalidApplicationException,
     BadApplicationConfigurationException, InvalidMiddlewareException,
     BadMiddlewareException, ControllerNotFoundException,
     ContextProcessorNotFoundException, URLBadformedException,
     ConfigModuleImportException)
+from agiliza.core.utils.imports import import_object
 
 
 class ConfigRunner(object):
@@ -71,12 +71,12 @@ class ConfigRunner(object):
                 app = app_name
             else:
                 raise InvalidApplicationException(
-                    '"%s" application must be a module or a string' % app_name
+                    "'%s' application must be a module or a string" % app_name
                 )
 
             if getattr(app, 'config', None) is None:
                 raise BadApplicationConfigurationException(
-                    '"%s" application does not have a config module' % app_name
+                    "'%s' application does not have a config module" % app_name
                 )
 
             installed_apps.append(app)
@@ -88,9 +88,9 @@ class ConfigRunner(object):
         full_settings = {}
         for installed_app in config_module.installed_apps:
             app_config = getattr(installed_app, 'config', None)
-            if app_config:
+            if app_config is not None:
                 app_settings = getattr(app_config, 'settings', None)
-                if app_settings:
+                if app_settings is not None:
                     full_settings.update(app_settings)
 
         if getattr(config_module, 'settings', None):
@@ -103,35 +103,32 @@ class ConfigRunner(object):
         middleware_list = []
         for middleware_name in middleware_level:
             if isinstance(middleware_name, str):
-                parts = middleware_name.split('.')
-                attr_name = parts[-1]
-                module_name = reduce(lambda x, y: x + '.' + y, parts[0:-1])
                 try:
-                    module = importlib.import_module(module_name)
-                except ImportError as error:
+                    middleware = import_object(middleware_name)
+                except (ImportError, AttributeError) as error:
                     raise InvalidMiddlewareException(error)
-
-                middleware = getattr(module, attr_name, None)
             else:
                 middleware = middleware_name
 
             any_method = any([
-                    getattr(middleware, method, None)
-                    for method in middleware_methods
+                getattr(middleware, method, None)
+                for method in middleware_methods
             ])
 
             if not any_method:
                 raise BadMiddlewareException(
-                    '"%s" middleware must have any method to process \
-                    in this level' % middleware_name
+                    "'%s' middleware must have any method to process \
+                    in this level" % middleware_name
                 )
 
             middleware_list.append(middleware)
 
         return tuple(middleware_list)
 
-
     def _get_url_list(self, url_patterns):
+        assert type(url_patterns) == list or type(url_patterns) == tuple,\
+            "'url_pattern' must be a list or tuple"
+
         urls = []
         not_finished_urls = []
         for url_list in url_patterns:
@@ -144,17 +141,18 @@ class ConfigRunner(object):
             except re.error as error:
                 raise URLBadformedException(error)
 
-            try:
-                target = importlib.import_module(target)
-            except ImportError as error:
-                raise ControllerNotFoundException(error)
+            if isinstance(target, str):
+                try:
+                    target = import_object(target)
+                except (ImportError, AttributeError) as error:
+                    raise ControllerNotFoundException(error)
 
             try:
-                context_processors = [
-                    importlib.import_module(context_processor)
+                context_processors = tuple([
+                    import_object(context_processor)
                     for context_processor in context_processors
-                ],
-            except ImportError as error:
+                ])
+            except (ImportError, AttributeError) as error:
                 raise ContextProcessorNotFoundException(error)
 
             urls.append((
