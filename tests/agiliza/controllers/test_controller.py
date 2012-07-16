@@ -21,7 +21,7 @@ import unittest
 
 from agiliza import http
 from agiliza.controllers import Controller
-from tests.mocks.controllers import GetControllerMock
+from tests.mocks.controllers import *
 from tests.mocks.request import HttpRequestMock
 
 
@@ -48,6 +48,21 @@ class ControllerTest(unittest.TestCase):
             "Controller dispatch does not launch get method"
         )
 
+    def test_must_retrieve_permitted_methods_for_put_method(self):
+        c = PutControllerMock()
+
+        self.assertEqual(
+            c.permitted_methods, ('PUT',),
+            "Wrong permitted methods for PutControllerMock"
+        )
+
+    def test_must_retrieve_permitted_methods_for_all_methods(self):
+        c = CompleteControllerMock()
+
+        self.assertEqual(
+            c.permitted_methods, ('GET', 'POST', 'PUT', 'DELETE'),
+            "Wrong permitted methods for CompleteControllerMock"
+        )
 
 
 if __name__ == '__main__':
