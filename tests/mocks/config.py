@@ -20,12 +20,12 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 class NiceDict(dict):
     def __getattr__(self, key):
         if key not in self.keys():
-            raise KeyError
+            raise AttributeError
         return self[key]
 
     def __setattr__(self, key, value):
         if key not in self.keys():
-            raise KeyError
+            raise AttributeError
         self[key] = value
 
 class ConfigModuleMock(NiceDict):
