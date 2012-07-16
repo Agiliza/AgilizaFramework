@@ -12,10 +12,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
-
+along with Agiliza. If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
+Copyright (c) 2012 Álvaro Hurtado <alvarohurtado84@gmail.com>
 """
 import inspect
 import importlib
@@ -36,7 +36,7 @@ class ConfigRunner(object):
             config_module.installed_apps
         )
         
-        
+        self.settings = self._get_settings(config_module)
         
 
         self.middleware_level0 = self._get_middleware_list(
@@ -51,9 +51,7 @@ class ConfigRunner(object):
 
         self.urls = self._get_url_list(config.module.url_patterns)
         
-
-
-
+        
     def _get_installed_apps(self, config_installed_apps):
         installed_apps = []
         for app_name in config_installed_apps:
@@ -77,6 +75,18 @@ class ConfigRunner(object):
             installed_apps.append(app)
 
         return tuple(installed_apps)
+
+
+    def _get_settings(self, config_module):
+        full_settings = {}
+        for installed_app in config_module.installed_apps:
+            if getattr(installed_app, "settings", None):
+                full_settings.update(installed_app.settings)
+                
+        if getattr(config_module, "settings", None):
+            full_settings.update(config_module.settings)
+            
+        return full_settings
 
 
     def _get_middleware_list(self, middleware_level, middleware_methods):
@@ -109,6 +119,7 @@ class ConfigRunner(object):
             middleware_list.append(middleware)
 
         return tuple(middleware_list)
+        
         
     def _get_url_list(self, url_patterns):
         urls = []
