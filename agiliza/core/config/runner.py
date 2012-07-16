@@ -44,8 +44,10 @@ class ConfigRunner(object):
             ('process_controller', 'process_render'),
         )
 
-
-        urls = include("config.urls")
+        urls = []
+        for url_list in config_module.urls.url_patterns:
+            urls = urls + url_list
+            
         self.urls = tuple(urls)
         
 

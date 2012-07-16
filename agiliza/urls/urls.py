@@ -110,8 +110,14 @@ def url(expression, target, layouts=None,
 
 
 def include(module_name):
-    url_file = __import__(module_name)
-    url_full = getattr(url_file, "url_patterns")
+    try:
+        url_file = __import__(module_name)
+        url_full = getattr(url_file, "url_patterns")
+    
+    except ImportError:
+        pass
+    except AttributeError:
+        pass
     
     all_urls = []
     for url_list in url_full:
