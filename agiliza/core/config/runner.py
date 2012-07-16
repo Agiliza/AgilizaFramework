@@ -21,6 +21,8 @@ import inspect
 import importlib
 from functools import reduce
 
+from agiliza.urls.urls import include
+
 from agiliza.core.config.exceptions import (InvalidApplicationException,
     BadApplicationConfigurationException, InvalidMiddlewareException,
     BadMiddlewareException)
@@ -39,14 +41,13 @@ class ConfigRunner(object):
 
         self.middleware_level1 = self._get_middleware_list(
             config_module.middleware_level1,
-            ('process_controller', 'process_template'),
+            ('process_controller', 'process_render'),
         )
 
 
-        urls = []
-
+        urls = include("config.urls")
         self.urls = tuple(urls)
-
+        
 
     def _get_installed_apps(self, config_installed_apps):
         installed_apps = []

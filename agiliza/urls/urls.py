@@ -106,6 +106,19 @@ def url(expression, target, layouts=None,
                     )
                 
     return urls
+
+
+
+def include(module_name):
+    url_file = __import__(module_name)
+    url_full = getattr(url_file, "url_patterns")
+    
+    all_urls = []
+    for url_list in url_full:
+        all_urls = all_urls + url_list
+        
+    return all_urls
+    
     
     
 def create_url(first, second=None):
