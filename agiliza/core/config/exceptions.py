@@ -39,3 +39,15 @@ class BadMiddlewareException(ConfigRunnerException):
     """This exception is launched by ``ConfigRunner`` when it load a
     middleware from middleware list and this middleware doesn't have any method
     to process in its level."""
+
+class ControllerNotFoundException(ConfigRunnerException):
+    """This exception is launched by ``ConfigRunner`` when it try to
+    import a Controller while it is creatig the urls list."""
+    
+class ContextProcessorNotFoundException(ConfigRunnerException):
+    """This exception is launched by ``ConfigRunner`` when it try to
+    import a ContextProcessor while it is creating the urls list."""
+    
+class URLBadformedException(ConfigRunnerException):
+    """This exception is launched by ``ConfigRunner`` when it try to
+    compile a url to regular expresion while it is creatig the urls list."""
