@@ -19,7 +19,7 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 Copyright (c) 2012 Alvaro Hurtado <alvarohurtado84@gmail.com>
 """
 from agiliza import http
-from agiliza.http import HttpResponseNotFound, HttpResponseNotAllowed
+from agiliza.http import HttpResponseNotFound
 from agiliza.core.handlers.context import ContextManager
 
 import re
