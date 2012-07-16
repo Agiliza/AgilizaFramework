@@ -49,7 +49,7 @@ class ConfigRunner(object):
             ('process_controller', 'process_render'),
         )
 
-        self.urls = self._get_url_list(config_module.url_patterns)
+        self.urls = self._get_url_list(config_module.urls.url_patterns)
         
         
     def _get_installed_apps(self, config_installed_apps):
