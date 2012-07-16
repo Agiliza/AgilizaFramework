@@ -35,6 +35,9 @@ class ConfigRunner(object):
         self.installed_apps = self._get_installed_apps(
             config_module.installed_apps
         )
+        
+        
+        
 
         self.middleware_level0 = self._get_middleware_list(
             config_module.middleware_level0,
@@ -46,37 +49,8 @@ class ConfigRunner(object):
             ('process_controller', 'process_render'),
         )
 
-        urls = []
-        not_finished_urls = []
-        for url_list in config_module.urls.url_patterns:
-            not_finished_urls = not_finished_urls + url_list
-            
-        for url in not_finished_urls:
-            try:
-                regexp = re.compile(url[0])
-            except re.error as error:
-                raise URLBadformedException(error)
-            
-            try:
-                target = importlib.import_module(url[1])
-            except ImportError as error:
-                raise ControllerNotFoundException(error)
-            
-            try:
-                context_processors = [importlib.import_module(context_processor) for context_processor in url[2]],
-            except ImportError as error:
-                raise ContextProcessorNotFoundException(error)
-            
-            urls.append((
-                regexp,    
-                target,
-                context_processors,
-                url[3],
-                url[4],
-            ))
-                
-        self.urls = tuple(urls)
-            
+        self.urls = self._get_url_list(config.module.url_patterns)
+        
 
 
 
@@ -135,3 +109,36 @@ class ConfigRunner(object):
             middleware_list.append(middleware)
 
         return tuple(middleware_list)
+        
+    def _get_url_list(self, url_patterns):
+        urls = []
+        not_finished_urls = []
+        for url_list in url_patterns:
+            not_finished_urls = not_finished_urls + url_list
+            
+        for url in not_finished_urls:
+            try:
+                regexp = re.compile(url[0])
+            except re.error as error:
+                raise URLBadformedException(error)
+            
+            try:
+                target = importlib.import_module(url[1])
+            except ImportError as error:
+                raise ControllerNotFoundException(error)
+            
+            try:
+                context_processors = [importlib.import_module(context_processor) for context_processor in url[2]],
+            except ImportError as error:
+                raise ContextProcessorNotFoundException(error)
+            
+            urls.append((
+                regexp,    
+                target,
+                context_processors,
+                url[3],
+                url[4],
+            ))
+            
+        return tuple(urls)
+                
