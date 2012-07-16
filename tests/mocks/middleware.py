@@ -17,39 +17,39 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-class MiddlewareBadExample(object):
+class BadMiddlewareMock(object):
     pass
 
 
-class MiddlewareLevel0Example1(object):
+class CompleteMiddlewareLevel0Mock(object):
     def process_request(self, request):
         pass
 
     def process_response(self, request, response):
         pass
 
-class MiddlewareLevel0Example2(object):
+class ProcessRequestMiddlewareLevel0Mock(object):
     def process_request(self, request):
         pass
 
-
-class MiddlewareLevel0Example3(object):
+class ProcessResponseMiddlewareLevel0Mock(object):
     def process_response(self, request, response):
         pass
 
-class MiddlewareLevel1Example1(object):
+
+class CompleteMiddlewareLevel1Mock(object):
     def process_controller(self, request, controllerfunc, controllerargs,
         controllerkwargs):
         pass
 
-    def process_template(self, request, response, template):
+    def process_render(self, request, response, render):
         pass
 
-class MiddlewareLevel1Example2(object):
+class ProcessControllerMiddlewareLevel1Mock(object):
     def process_controller(self, request, controllerfunc, controllerargs,
         controllerkwargs):
         pass
 
-class MiddlewareLevel1Example3(object):
-    def process_template(self, request, response, template):
+class ProcessRenderMiddlewareLevel1Mock(object):
+    def process_render(self, request, response, render):
         pass
