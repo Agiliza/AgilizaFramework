@@ -41,17 +41,17 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
             msg="URL do not create a url with name"
         )
 
-    def test_create_url_with_common_context_processors(self):
+    def test_create_url_with_context_processors(self):
         created_url = url(
             "",
             "blog.controller.home",
-            common_context_processors=["menu", "users"]
+            context_processors=["menu", "users"]
         )
 
         self.assertEqual(
             set(created_url[0][2]),
             set(["menu", "users"]),
-            msg="URL do not create a url with common_context_processors"
+            msg="URL do not create a url with context_processors"
         )
 
     def test_create_url_with_one_layout_without_context_processors(self):
@@ -117,7 +117,7 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
                 context_processors"
         )
 
-    def test_create_url_with_multiple_layouts_with_common_context_processors(self):
+    def test_create_url_with_multiple_layouts_with_context_processors(self):
         created_url = url(
             "",
             "blog.controller.home",
@@ -131,7 +131,7 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
                     "context_processors":[],
                 }
             },
-            common_context_processors=["menu", "users"],
+            context_processors=["menu", "users"],
         )
 
         self.assertEqual(
@@ -187,7 +187,7 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
                 msg="URL do not add custom context processors to the second URL"
             )
 
-    def test_create_url_with_multiple_layouts_with_custom_and_common_context_processors(self):
+    def test_create_url_with_multiple_layouts_with_custom_and_context_processors(self):
         created_url = url(
             "",
             "blog.controller.home",
@@ -201,7 +201,7 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
                     "context_processors":[],
                 }
             },
-            common_context_processors=["common", "context"]
+            context_processors=["common", "context"]
         )
 
         if created_url[0][4] is "default":
@@ -268,14 +268,14 @@ class IncludeTargetUrlTest(unittest.TestCase):
         )
 
 
-    def test_from_include_with_common_context_processors(self):
+    def test_from_include_with_context_processors(self):
         created_url = url(
             "blog/",
             [
                 ("^$", "blog.controller.home", [],  None, None),
                 ("^post/$", "blog.controller.post", [], None, None),
             ],
-            common_context_processors=["menu", "users"],
+            context_processors=["menu", "users"],
         )
 
         self.assertEqual(
@@ -400,7 +400,7 @@ class IncludeTargetUrlTest(unittest.TestCase):
         )
 
 
-    def test_from_include_with_multiple_layouts_with_common_context_processors(self):
+    def test_from_include_with_multiple_layouts_with_context_processors(self):
         created_url = url(
             "blog/",
             [
@@ -417,7 +417,7 @@ class IncludeTargetUrlTest(unittest.TestCase):
                     "context_processors":[],
                 }
             },
-            common_context_processors=["menu", "users"],
+            context_processors=["menu", "users"],
         )
 
         for url_i in created_url:
@@ -445,7 +445,7 @@ class IncludeTargetUrlTest(unittest.TestCase):
                 "context_processors":[],
                 }
             },
-            common_context_processors=["common", "context"],
+            context_processors=["common", "context"],
         )
 
         for url_i in created_url:

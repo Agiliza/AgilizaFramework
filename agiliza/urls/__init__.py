@@ -21,7 +21,7 @@ import importlib
 
 
 def url(expression, target, layouts=None,
-        name=None, common_context_processors=[]):
+        name=None, context_processors=[]):
     """
     Create a list of urls.
     Must return one of these:
@@ -50,7 +50,7 @@ def url(expression, target, layouts=None,
                             expression
                         ),
                         target,
-                        common_context_processors + \
+                        context_processors + \
                             layouts[layout_name]["context_processors"],
                         name,
                         layout_name,
@@ -62,7 +62,7 @@ def url(expression, target, layouts=None,
                 (
                     create_url(expression),
                     target,
-                    common_context_processors,
+                    context_processors,
                     name,
                     None,
                 )
@@ -85,7 +85,7 @@ def url(expression, target, layouts=None,
                             ),
                             app_url[1],
                             app_url[2] + \
-                                common_context_processors + \
+                                context_processors + \
                                 layouts[layout_name]["context_processors"],
                             app_url[3],
                             layout_name,
@@ -100,7 +100,7 @@ def url(expression, target, layouts=None,
                     (
                         create_url(expression, app_url[0]),
                         app_url[1],
-                        app_url[2] + common_context_processors,
+                        app_url[2] + context_processors,
                         app_url[3],
                         app_url[4],
                     )
