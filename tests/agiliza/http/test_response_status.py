@@ -106,6 +106,15 @@ class HttpResponseStatusTest(unittest.TestCase):
         )
 
     def test_check_status_code_and_status_text_of_300(self):
+        response = http.Http300()
+
+        self.assertEqual(
+            (response.status_code, response.status_text),
+            (300, 'MULTIPLE CHOICES'),
+            "Status code or status text does not mismatch"
+        )
+
+    def test_check_status_code_and_status_text_of_300_with_arguments(self):
         response = http.Http300('/redirect/to')
 
         self.assertEqual(
