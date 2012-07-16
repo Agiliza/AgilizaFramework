@@ -27,17 +27,24 @@ from agiliza.urls.urls import include
 from agiliza.core.config.exceptions import (InvalidApplicationException,
     BadApplicationConfigurationException, InvalidMiddlewareException,
     BadMiddlewareException, ControllerNotFoundException,
-    ContextProcessorNotFoundException, URLBadformedException,)
+    ContextProcessorNotFoundException, URLBadformedException,
+    ConfigModuleImportException)
 
 
 class ConfigRunner(object):
     def __init__(self, config_module):
+        if isinstance(config_module, str):
+            try:
+                config_module = importlib.import_module(config_module)
+            except ImportError as error:
+                raise ConfigModuleImportException(error)
+
         self.installed_apps = self._get_installed_apps(
             config_module.installed_apps
         )
-        
+
         self.settings = self._get_settings(config_module)
-        
+
 
         self.middleware_level0 = self._get_middleware_list(
             config_module.middleware_level0,
@@ -50,8 +57,8 @@ class ConfigRunner(object):
         )
 
         self.urls = self._get_url_list(config_module.urls.url_patterns)
-        
-        
+
+
     def _get_installed_apps(self, config_installed_apps):
         installed_apps = []
         for app_name in config_installed_apps:
@@ -80,12 +87,15 @@ class ConfigRunner(object):
     def _get_settings(self, config_module):
         full_settings = {}
         for installed_app in config_module.installed_apps:
-            if getattr(installed_app, "settings", None):
-                full_settings.update(installed_app.settings)
-                
-        if getattr(config_module, "settings", None):
+            app_config = getattr(installed_app, 'config', None)
+            if app_config:
+                app_settings = getattr(app_config, 'settings', None)
+                if app_settings:
+                    full_settings.update(app_settings)
+
+        if getattr(config_module, 'settings', None):
             full_settings.update(config_module.settings)
-            
+
         return full_settings
 
 
@@ -119,37 +129,36 @@ class ConfigRunner(object):
             middleware_list.append(middleware)
 
         return tuple(middleware_list)
-        
-        
+
+
     def _get_url_list(self, url_patterns):
         urls = []
         not_finished_urls = []
         for url_list in url_patterns:
             not_finished_urls = not_finished_urls + url_list
-            
+
         for url in not_finished_urls:
             try:
                 regexp = re.compile(url[0])
             except re.error as error:
                 raise URLBadformedException(error)
-            
+
             try:
                 target = importlib.import_module(url[1])
             except ImportError as error:
                 raise ControllerNotFoundException(error)
-            
+
             try:
                 context_processors = [importlib.import_module(context_processor) for context_processor in url[2]],
             except ImportError as error:
                 raise ContextProcessorNotFoundException(error)
-            
+
             urls.append((
-                regexp,    
+                regexp,
                 target,
                 context_processors,
                 url[3],
                 url[4],
             ))
-            
+
         return tuple(urls)
-                

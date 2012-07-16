@@ -17,16 +17,24 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
+import types
+
+
 class NiceDict(dict):
     def __getattr__(self, key):
         if key not in self.keys():
-            raise AttributeError
+            return super(NiceDict, self).__getattr__(key)
         return self[key]
 
     def __setattr__(self, key, value):
         if key not in self.keys():
-            raise AttributeError
+            return super(NiceDict, self).__setattr__(key, value)
         self[key] = value
+
+class ApplicationModuleMock(types.ModuleType):
+    """Simulate the module ``application/config`` with initial configuration."""
+    def __init__(self, module_name='ApplicationTest'):
+        super(types.ModuleType, self).__init__(module_name)
 
 class ConfigModuleMock(NiceDict):
     """Simulate the module ``site/config`` with initial configuration."""

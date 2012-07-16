@@ -107,6 +107,29 @@ class ConfigRunnerTest(unittest.TestCase):
             "ConfigRunner does not load a empty list"
         )
 
+    def test_config_must_load_project_settings(self):
+        self.config_module['settings'] = { 'agiliza': 'rocks' }
+        config = ConfigRunner(self.config_module)
+
+        self.assertEqual(
+            config.settings, { 'agiliza': 'rocks' },
+            "ConfigRunner does not load project settings"
+        )
+
+    def test_config_must_load_app_settings(self):
+        app = ApplicationModuleMock()
+        app_config = ConfigModuleMock()
+        app_config['settings'] = { 'app': 'rocks' }
+        setattr(app, 'config', app_config)
+        self.config_module.installed_apps.append(app)
+
+        config = ConfigRunner(self.config_module)
+
+        self.assertEqual(
+            config.settings, { 'app': 'rocks' },
+            "ConfigRunner does not load app settings"
+        )
+
     def test_config_must_load_a_middleware_list_level0(self):
         self.config_module.middleware_level0.append(
             'tests.mocks.middleware.CompleteMiddlewareLevel0Mock'
