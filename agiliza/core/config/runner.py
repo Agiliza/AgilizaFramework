@@ -19,13 +19,15 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 import inspect
 import importlib
+import re
 from functools import reduce
 
 from agiliza.urls.urls import include
 
 from agiliza.core.config.exceptions import (InvalidApplicationException,
     BadApplicationConfigurationException, InvalidMiddlewareException,
-    BadMiddlewareException)
+    BadMiddlewareException, ControllerNotFoundException,
+    ContextProcessorNotFoundException, URLBadformedException,)
 
 
 class ConfigRunner(object):
@@ -45,11 +47,38 @@ class ConfigRunner(object):
         )
 
         urls = []
+        not_finished_urls = []
         for url_list in config_module.urls.url_patterns:
-            urls = urls + url_list
+            not_finished_urls = not_finished_urls + url_list
             
+        for url in not_finished_urls:
+            try:
+                regexp = re.compile(url[0])
+            except re.error as error:
+                raise URLBadformedException(error)
+            
+            try:
+                target = importlib.import_module(url[1])
+            except ImportError as error:
+                raise ControllerNotFoundException(error)
+            
+            try:
+                context_processors = [importlib.import_module(context_processor) for context_processor in url[2]],
+            except ImportError as error:
+                raise ContextProcessorNotFoundException(error)
+            
+            urls.append((
+                regexp,    
+                target,
+                context_processors,
+                url[3],
+                url[4],
+            ))
+                
         self.urls = tuple(urls)
-        
+            
+
+
 
     def _get_installed_apps(self, config_installed_apps):
         installed_apps = []
