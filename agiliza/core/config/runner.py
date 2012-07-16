@@ -74,7 +74,7 @@ class ConfigRunner(object):
                     '"%s" application must be a module or a string' % app_name
                 )
 
-            if not getattr(app, 'config', None):
+            if getattr(app, 'config', None) is None:
                 raise BadApplicationConfigurationException(
                     '"%s" application does not have a config module' % app_name
                 )
@@ -138,18 +138,22 @@ class ConfigRunner(object):
             not_finished_urls = not_finished_urls + url_list
 
         for url in not_finished_urls:
+            regexp, target, context_processors, name, layout_name = url
             try:
-                regexp = re.compile(url[0])
+                regexp = re.compile(regexp)
             except re.error as error:
                 raise URLBadformedException(error)
 
             try:
-                target = importlib.import_module(url[1])
+                target = importlib.import_module(target)
             except ImportError as error:
                 raise ControllerNotFoundException(error)
 
             try:
-                context_processors = [importlib.import_module(context_processor) for context_processor in url[2]],
+                context_processors = [
+                    importlib.import_module(context_processor)
+                    for context_processor in context_processors
+                ],
             except ImportError as error:
                 raise ContextProcessorNotFoundException(error)
 
@@ -157,8 +161,8 @@ class ConfigRunner(object):
                 regexp,
                 target,
                 context_processors,
-                url[3],
-                url[4],
+                name,
+                layout_name,
             ))
 
         return tuple(urls)

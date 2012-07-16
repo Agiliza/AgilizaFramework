@@ -19,6 +19,7 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 import importlib
 import unittest
+import sys
 
 from agiliza.core.config import ConfigRunner
 from agiliza.core.config.exceptions import *
@@ -36,25 +37,44 @@ class ConfigRunnerTest(unittest.TestCase):
             'urls': UrlModuleMock(tuple()),
         })
 
+    def test_config_must_load_a_config_module(self):
+        with self.assertRaises(ConfigModuleImportException,
+            msg="Must be raise a ConfigModuleImportException"):
+
+            ConfigRunner('invalid_config_module')
+
+    def test_config_must_raise_exception_on_load_invalid_config_module(self):
+        sys.modules.setdefault('my_config_module', self.config_module)
+
+        config = ConfigRunner('my_config_module')
+
+        self.assertEqual(
+            config.installed_apps, (),
+            "ConfigRunner does not load installed_apps"
+        )
+
+        sys.modules.pop('my_config_module')
+
     def test_config_must_load_an_app_name(self):
-        import agiliza.core
-        self.config_module.installed_apps.append('agiliza.core')
+        app = ApplicationModuleMock('test_app')
+        sys.modules.setdefault('test_app', app)
+        self.config_module.installed_apps.append('test_app')
 
         config = ConfigRunner(self.config_module)
 
         self.assertEqual(
-            config.installed_apps, (agiliza.core,),
+            config.installed_apps, (app,),
             "ConfigRunner does not load installed_apps"
         )
 
     def test_config_must_load_a_module(self):
-        import agiliza.core
-        self.config_module.installed_apps.append(agiliza.core)
+        app = ApplicationModuleMock()
+        self.config_module.installed_apps.append(app)
 
         config = ConfigRunner(self.config_module)
 
         self.assertEqual(
-            config.installed_apps, (agiliza.core,),
+            config.installed_apps, (app,),
             "ConfigRunner does not load installed_apps"
         )
 
@@ -118,9 +138,7 @@ class ConfigRunnerTest(unittest.TestCase):
 
     def test_config_must_load_app_settings(self):
         app = ApplicationModuleMock()
-        app_config = ConfigModuleMock()
-        app_config['settings'] = { 'app': 'rocks' }
-        setattr(app, 'config', app_config)
+        app.config['settings'] = { 'app': 'rocks' }
         self.config_module.installed_apps.append(app)
 
         config = ConfigRunner(self.config_module)

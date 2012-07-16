@@ -31,14 +31,15 @@ class NiceDict(dict):
             return super(NiceDict, self).__setattr__(key, value)
         self[key] = value
 
+class ConfigModuleMock(NiceDict):
+    """Simulate the module ``site/config`` with initial configuration."""
+    pass
+
 class ApplicationModuleMock(types.ModuleType):
     """Simulate the module ``application/config`` with initial configuration."""
     def __init__(self, module_name='ApplicationTest'):
         super(types.ModuleType, self).__init__(module_name)
-
-class ConfigModuleMock(NiceDict):
-    """Simulate the module ``site/config`` with initial configuration."""
-    pass
+        self.config = ConfigModuleMock()
 
 class UrlModuleMock(NiceDict):
     def __init__(self, url_patterns):
