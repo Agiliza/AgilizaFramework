@@ -18,7 +18,7 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 from agiliza import http
-from agiliza.http.exceptions import HttpParserException
+from agiliza.http.exceptions import HttpParserException, HttpResponseException
 from agiliza.core.handlers import Handler
 
 
@@ -30,6 +30,8 @@ class WSGIHandler(Handler):
             response = self.dispatch(request)
         except (UnicodeDecodeError, HttpParserException):
             response = http.HttpResponseBadRequest()
+        except HttpResponseException as exception:
+            response = exception
         except:
             response = http.HttpResponseInternalServerError()
 
