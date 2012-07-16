@@ -22,7 +22,7 @@ import importlib
 import re
 from functools import reduce
 
-from agiliza.urls.urls import include
+from agiliza.urls import include
 
 from agiliza.core.config.exceptions import (InvalidApplicationException,
     BadApplicationConfigurationException, InvalidMiddlewareException,

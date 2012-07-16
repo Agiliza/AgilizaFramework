@@ -18,7 +18,7 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Alvaro Hurtado <alvarohurtado84@gmail.com>
 """
 import unittest
-from agiliza.urls.urls import url
+from agiliza.urls import url
 
 
 class StringOrFunctionTargetUrlTest(unittest.TestCase):
