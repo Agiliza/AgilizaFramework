@@ -44,7 +44,33 @@ class ConfigRunner(object):
 
         urls = []
 
-        self.urls = urls
+        self.urls = tuple(urls)
+
+
+    def _get_installed_apps(self, config_installed_apps):
+        installed_apps = []
+        for app_name in config_installed_apps:
+            if isinstance(app_name, str):
+                try:
+                    app = importlib.import_module(app_name)
+                except ImportError as error:
+                    raise InvalidApplicationException(error)
+            elif inspect.ismodule(app_name):
+                app = app_name
+            else:
+                raise InvalidApplicationException(
+                    '"%s" application must be a module or a string' % app_name
+                )
+
+            if not getattr(app, 'config', None):
+                raise BadApplicationConfigurationException(
+                    '"%s" application does not have a config module' % app_name
+                )
+
+            installed_apps.append(app)
+
+        return tuple(installed_apps)
+
 
     def _get_middleware_list(self, middleware_level, middleware_methods):
         middleware_list = []
@@ -76,27 +102,3 @@ class ConfigRunner(object):
             middleware_list.append(middleware)
 
         return tuple(middleware_list)
-
-    def _get_installed_apps(self, config_installed_apps):
-        installed_apps = []
-        for app_name in config_installed_apps:
-            if isinstance(app_name, str):
-                try:
-                    app = importlib.import_module(app_name)
-                except ImportError as error:
-                    raise InvalidApplicationException(error)
-            elif inspect.ismodule(app_name):
-                app = app_name
-            else:
-                raise InvalidApplicationException(
-                    '"%s" application must be a module or a string' % app_name
-                )
-
-            if not getattr(app, 'config', None):
-                raise BadApplicationConfigurationException(
-                    '"%s" application does not have a config module' % app_name
-                )
-
-            installed_apps.append(app)
-
-        return tuple(installed_apps)
