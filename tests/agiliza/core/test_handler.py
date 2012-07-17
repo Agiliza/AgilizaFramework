@@ -25,7 +25,7 @@ from agiliza import http
 from agiliza.core.config import ConfigRunner
 from agiliza.core.handlers import Handler
 from agiliza.core.handlers.exceptions import *
-from agiliza.urls import url, include
+from agiliza.config.urls import url, include
 from tests.mocks.config import *
 from tests.mocks.controllers import *
 from tests.mocks.middleware import *
@@ -43,8 +43,17 @@ class HandlerTest(unittest.TestCase):
             'templates': { 'directory': '/' },
         })
 
+        sys.modules.setdefault('my_config_module', self.config_module)
+        os.environ['AGILIZA_CONFIG'] = 'my_config_module'
+
+        ConfigRunner._singleton_instance = None
+
+    def tearDown(self):
+        del os.environ['AGILIZA_CONFIG']
+        sys.modules.pop('my_config_module')
+
     def test_must_load_from_config_module(self):
-        handler = Handler(self.config_module)
+        handler = Handler()
 
         self.assertTrue(
             isinstance(handler.config, ConfigRunner),
@@ -63,14 +72,8 @@ class HandlerTest(unittest.TestCase):
 
         sys.modules.pop('my_project.config')
 
-    def test_must_fail_without_config_info(self):
-        with self.assertRaises(InvalidConfigModuleException,
-            msg="Must be raise a InvalidConfigModuleException"):
-
-            Handler()
-
     def test_must_raise_http_404_without_url_patterns(self):
-        handler = Handler(self.config_module)
+        handler = Handler()
 
         request = HttpRequestMock()
         request.method = 'GET'
@@ -96,7 +99,7 @@ class HandlerTest(unittest.TestCase):
             )
         )
 
-        handler = Handler(self.config_module)
+        handler = Handler()
 
         request = HttpRequestMock()
         request.method = 'GET'
@@ -117,7 +120,7 @@ class HandlerTest(unittest.TestCase):
             )
         )
 
-        handler = Handler(self.config_module)
+        handler = Handler()
 
         request = HttpRequestMock()
         request.method = 'GET'
@@ -136,14 +139,16 @@ class HandlerTest(unittest.TestCase):
             )
         )
 
-        handler = Handler(self.config_module)
+        handler = Handler()
 
         request = HttpRequestMock()
         request.method = 'GET'
         request.path_info = '/exp1'
         request.accept['text/html'] = 1.0
 
-        response = handler.dispatch(request)
+        with self.assertRaises(http.Http415,
+            msg="Must be raise a Http415"):
+            handler.dispatch(request)
 
     def test_middleware_level0_must_add_mw_field_to_request_and_response(self):
         GetControllerMock.get = lambda self, *args, **kwargs: \
@@ -166,7 +171,7 @@ class HandlerTest(unittest.TestCase):
             CompleteMiddlewareLevel0Mock
         )
 
-        handler = Handler(self.config_module)
+        handler = Handler()
 
         request = HttpRequestMock()
         request.method = 'GET'

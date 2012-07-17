@@ -19,12 +19,13 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 import importlib
 import unittest
+import os
 import re
 import sys
 
 from agiliza.core.config import ConfigRunner
 from agiliza.core.config.exceptions import *
-from agiliza.urls import url, include
+from agiliza.config.urls import url, include
 from tests.mocks.config import *
 from tests.mocks.controllers import *
 from tests.mocks.middleware import *
@@ -41,27 +42,33 @@ class ConfigRunnerTest(unittest.TestCase):
             'templates': { 'directory': '/' },
         })
 
+        sys.modules.setdefault('my_config_module', self.config_module)
+        os.environ['AGILIZA_CONFIG'] = 'my_config_module'
+
+        ConfigRunner._singleton_instance = None
+
+    def tearDown(self):
+        sys.modules.pop('my_config_module')
+
+
     def test_config_must_load_a_config_module(self):
+        os.environ['AGILIZA_CONFIG'] = 'invalid_config_module'
         with self.assertRaises(ConfigModuleImportException,
             msg="Must be raise a ConfigModuleImportException"):
 
-            ConfigRunner('invalid_config_module')
+            ConfigRunner()
 
     def test_config_must_raise_exception_on_load_invalid_config_module(self):
-        sys.modules.setdefault('my_config_module', self.config_module)
-
-        config = ConfigRunner('my_config_module')
+        config = ConfigRunner()
 
         self.assertEqual(
             config.installed_apps, (),
             "ConfigRunner does not load installed_apps"
         )
 
-        sys.modules.pop('my_config_module')
-
     def test_config_must_load_template_directory(self):
         self.config_module.templates['directory'] = '/'
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.templates, '/',
@@ -74,14 +81,14 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(TemplatePathException,
             msg="Must be raise a TemplatePathException"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
     def test_config_must_load_an_app_name(self):
         app = ApplicationModuleMock('test_app')
         sys.modules.setdefault('test_app', app)
         self.config_module.installed_apps.append('test_app')
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.installed_apps, (app,),
@@ -94,7 +101,7 @@ class ConfigRunnerTest(unittest.TestCase):
         app = ApplicationModuleMock()
         self.config_module.installed_apps.append(app)
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.installed_apps, (app,),
@@ -107,7 +114,7 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(InvalidApplicationException,
             msg="Must be raise a InvalidApplicationException"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
     def test_must_raise_invalid_application_exception(self):
         self.config_module.installed_apps.append('invalid.module.test')
@@ -115,10 +122,10 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(InvalidApplicationException,
             msg="Must be raise a InvalidApplicationException"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
     def test_config_must_load_a_empty_application_list(self):
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.installed_apps, (),
@@ -130,8 +137,8 @@ class ConfigRunnerTest(unittest.TestCase):
 
         with self.assertRaises(BadApplicationConfigurationException,
             msg="Must be raise a BadApplicationConfigurationException"):
+            ConfigRunner()
 
-            ConfigRunner(self.config_module)
 
 
     def test_config_must_raise_invalid_middleware_exception_level0(self):
@@ -140,10 +147,10 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(InvalidMiddlewareException,
             msg="Must be raise a InvalidMiddlewareException"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
     def test_config_must_load_a_empty_list_level0(self):
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.middleware_level0, (),
@@ -152,7 +159,7 @@ class ConfigRunnerTest(unittest.TestCase):
 
     def test_config_must_load_project_settings(self):
         self.config_module['settings'] = { 'agiliza': 'rocks' }
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.settings, { 'agiliza': 'rocks' },
@@ -164,7 +171,7 @@ class ConfigRunnerTest(unittest.TestCase):
         app.config['settings'] = { 'app': 'rocks' }
         self.config_module.installed_apps.append(app)
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.settings, { 'app': 'rocks' },
@@ -179,7 +186,7 @@ class ConfigRunnerTest(unittest.TestCase):
         self.config_module.installed_apps.append(app1)
         self.config_module.installed_apps.append(app2)
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.settings, { 'app': 'rocks' },
@@ -191,7 +198,7 @@ class ConfigRunnerTest(unittest.TestCase):
         self.config_module['settings'] = { 'agiliza': 'rocks' }
         self.config_module.installed_apps.append(app)
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.settings, { 'agiliza': 'rocks' },
@@ -204,7 +211,7 @@ class ConfigRunnerTest(unittest.TestCase):
         self.config_module['settings'] = { 'agiliza': 'rocks' }
         self.config_module.installed_apps.append(app)
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.settings, { 'agiliza': 'rocks', 'app': 'rocks' },
@@ -222,7 +229,7 @@ class ConfigRunnerTest(unittest.TestCase):
             'tests.mocks.middleware.ProcessResponseMiddlewareLevel0Mock'
         )
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.middleware_level0, (
@@ -241,14 +248,14 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(BadMiddlewareException,
             msg="Must be raise a BadMiddlewareException"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
     def test_config_must_load_a_class_level0(self):
         self.config_module.middleware_level0.append(
             CompleteMiddlewareLevel0Mock
         )
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.middleware_level0, (CompleteMiddlewareLevel0Mock(),),
@@ -260,7 +267,7 @@ class ConfigRunnerTest(unittest.TestCase):
             CompleteMiddlewareLevel0Mock()
         )
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.middleware_level0, (CompleteMiddlewareLevel0Mock(),),
@@ -280,7 +287,7 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(InvalidMiddlewareException,
             msg="Middleware not callable"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
         sys.modules.pop('test_module')
 
@@ -291,10 +298,10 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(InvalidMiddlewareException,
             msg="Must be raise a InvalidMiddlewareException"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
     def test_config_must_load_a_empty_list_level1(self):
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.middleware_level1, (),
@@ -312,7 +319,7 @@ class ConfigRunnerTest(unittest.TestCase):
             'tests.mocks.middleware.ProcessRenderMiddlewareLevel1Mock'
         )
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.middleware_level1, (
@@ -331,14 +338,14 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(BadMiddlewareException,
             msg="Must be raise a BadMiddlewareException"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
     def test_config_must_load_a_class_level1(self):
         self.config_module.middleware_level1.append(
             CompleteMiddlewareLevel1Mock
         )
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.middleware_level1, (CompleteMiddlewareLevel1Mock(),),
@@ -357,7 +364,7 @@ class ConfigRunnerTest(unittest.TestCase):
             )
         )
 
-        config = ConfigRunner(self.config_module)
+        config = ConfigRunner()
 
         self.assertEqual(
             config.urls,
@@ -394,7 +401,7 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(URLBadformedException,
             msg="Error on regular expression"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
     def test_config_must_raise_on_bad_import(self):
         self.config_module.urls = UrlModuleMock(
@@ -410,7 +417,7 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(ControllerNotFoundException,
             msg="Controller not found"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
     def test_config_must_not_load_an_not_callable_controller(self):
         test_module = types.ModuleType('test_module')
@@ -431,7 +438,7 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(ControllerNotFoundException,
             msg="Controller not callable"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
         sys.modules.pop('test_module')
 
@@ -452,7 +459,7 @@ class ConfigRunnerTest(unittest.TestCase):
         with self.assertRaises(ContextProcessorNotFoundException,
             msg="Context processor not found"):
 
-            ConfigRunner(self.config_module)
+            ConfigRunner()
 
 
 

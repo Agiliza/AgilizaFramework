@@ -41,7 +41,7 @@ class Session(object):
         if cookie_path:
             self.cookie['sid']['path'] = cookie_path
 
-        session_dir = os.environ['DOCUMENT_ROOT'] + '/session'
+        session_dir = settings['session']['directory']
         if not os.path.exists(session_dir):
             try:
                 os.mkdir(session_dir, 02770)

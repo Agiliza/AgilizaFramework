@@ -15,5 +15,18 @@ You should have received a copy of the GNU General Public License
 along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 
-Copyright (c) 2012 Alvaro Hurtado <alvarohurtado84@gmail.com>
+Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
+class SingletonMetaClass(type):
+    def __init__(cls,name,bases,dic):
+        super(SingletonMetaClass, cls).__init__(name, bases, dic)
+        cls._singleton_instance = None
+
+    def __call__(cls,*args,**kw):
+        if cls._singleton_instance is None:
+            cls._singleton_instance = \
+                super(SingletonMetaClass, cls).__call__(*args, **kw)
+        return cls._singleton_instance
+
+class Singleton(metaclass=SingletonMetaClass):
+    pass

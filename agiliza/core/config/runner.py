@@ -23,23 +23,26 @@ import re
 import os
 from functools import reduce
 
-from agiliza.urls import include
+from agiliza.config.urls import include
 from agiliza.core.config.exceptions import (InvalidApplicationException,
     BadApplicationConfigurationException, InvalidMiddlewareException,
     BadMiddlewareException, ControllerNotFoundException,
     ContextProcessorNotFoundException, URLBadformedException,
     ConfigModuleImportException, TemplatePathException)
 from agiliza.core.utils.imports import import_object
+from agiliza.core.utils.patterns import Singleton
 from agiliza.renders import Jinja2Render
 
 
-class ConfigRunner(object):
-    def __init__(self, config_module):
-        if isinstance(config_module, str):
-            try:
-                config_module = importlib.import_module(config_module)
-            except ImportError as error:
-                raise ConfigModuleImportException(error)
+class ConfigRunner(Singleton):
+    def __init__(self):
+        try:
+            config_module_name = os.environ['AGILIZA_CONFIG']
+            config_module = importlib.import_module(config_module_name)
+        except KeyError as error:
+            raise ConfigModuleImportException(error)
+        except ImportError as error:
+            raise ConfigModuleImportException(error)
 
         self.templates, self.template_render = self._get_templates_info(
             config_module

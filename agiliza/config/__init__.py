@@ -15,11 +15,20 @@ You should have received a copy of the GNU General Public License
 along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 
-Copyright (c) 2012 Alvaro Hurtado <alvarohurtado84@gmail.com>
+Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
+from agiliza.core.config import ConfigRunner
+from agiliza.core.config.exceptions import ConfigModuleImportException
 
-class UrlFileNotFoundException(Exception): pass
 
-class UrlPatternsNotFoundException(Exception): pass
+try:
+    config = ConfigRunner()
+except ConfigModuleImportException:
+    settings = {}
+    ConfigRunner._singleton_instance = None
+else:
+    settings = config.settings
 
-class NoneNameException(Exception): pass
+
+
+
