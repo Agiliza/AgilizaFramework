@@ -20,6 +20,7 @@ Copyright (c) 2012 Álvaro Hurtado <alvarohurtado84@gmail.com>
 import inspect
 import importlib
 import re
+import os
 from functools import reduce
 
 from agiliza.urls import include
@@ -27,8 +28,9 @@ from agiliza.core.config.exceptions import (InvalidApplicationException,
     BadApplicationConfigurationException, InvalidMiddlewareException,
     BadMiddlewareException, ControllerNotFoundException,
     ContextProcessorNotFoundException, URLBadformedException,
-    ConfigModuleImportException)
+    ConfigModuleImportException, TemplatePathException)
 from agiliza.core.utils.imports import import_object
+from agiliza.renders import Jinja2Render
 
 
 class ConfigRunner(object):
@@ -38,6 +40,10 @@ class ConfigRunner(object):
                 config_module = importlib.import_module(config_module)
             except ImportError as error:
                 raise ConfigModuleImportException(error)
+
+        self.templates, self.template_render = self._get_templates_info(
+            config_module
+        )
 
         self.installed_apps = self._get_installed_apps(
             config_module.installed_apps
@@ -57,6 +63,27 @@ class ConfigRunner(object):
         )
 
         self.urls = self._get_url_list(config_module.urls.url_patterns)
+
+
+    def _get_templates_info(self, config_module):
+        templates = getattr(config_module, 'templates', {})
+        assert type(templates) == dict, "templates must be an dictionary"
+
+        template_dir = templates.get('directory')
+
+        if not os.path.exists(template_dir):
+            raise TemplatePathException(
+                "Template path '%s' does not exist" % template_dir
+            )
+
+        template_render = templates.get('render', Jinja2Render)
+
+        if isinstance(template_render, str):
+            template_render = import_object(middleware_name)
+        elif not callable(template_render):
+            raise
+
+        return template_dir, template_render
 
 
     def _get_installed_apps(self, config_installed_apps):

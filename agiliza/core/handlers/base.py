@@ -35,6 +35,7 @@ class Handler(object):
                 raise InvalidConfigModuleException
 
         self.config = ConfigRunner(config_module)
+        self.Render = self.config.template_render
 
     def dispatch(self, request):
         """Returns an Response object for the given Request."""
@@ -66,6 +67,8 @@ class Handler(object):
             raise http.HttpResponseNotFound()
 
 
+        cookies = request.cookies
+
         #"""
         #Execute controller with request + params + config
         #"""
@@ -74,7 +77,7 @@ class Handler(object):
             params=params,
             settings=self.config.settings,
             session=request.session, #TODO
-            cookies=request.cookies, #TODO
+            cookies=cookies, #TODO
         )
 
         if not isinstance(response, http.response.HttpResponse):
@@ -131,7 +134,7 @@ class Handler(object):
             #Render the template with response + request + contexts_info
             #"""
             context_data.update(response_data)
-            render = Render(
+            render = self.Render(
                 template = template_path,
                 context = context_data,
             )
@@ -143,7 +146,7 @@ class Handler(object):
             )
 
 
-        response.set_cookies(cookies)
+        response.cookies = cookies
 
         #"""
         #Execute level-0 Middlewares OUT

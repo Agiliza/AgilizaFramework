@@ -40,6 +40,7 @@ class HandlerTest(unittest.TestCase):
             'middleware_level0': list(),
             'middleware_level1': list(),
             'urls': UrlModuleMock(tuple()),
+            'templates': { 'directory': '/' },
         })
 
     def test_must_load_from_config_module(self):
@@ -82,8 +83,16 @@ class HandlerTest(unittest.TestCase):
     def test_must_raise_http_405_using_controller_without_get_method(self):
         self.config_module.urls = UrlModuleMock(
             (
-                url('/exp1', 'tests.mocks.controllers.GetControllerMock'),
-                url('/exp2', 'tests.mocks.controllers.PutControllerMock'),
+                url(
+                    '/exp1',
+                    'tests.mocks.controllers.GetControllerMock',
+                    'exp1'
+                ),
+                url(
+                    '/exp2',
+                    'tests.mocks.controllers.PutControllerMock',
+                    'exp2'
+                ),
             )
         )
 
@@ -98,15 +107,60 @@ class HandlerTest(unittest.TestCase):
 
             handler.dispatch(request)
 
-    def test_middleware_level0_must_add_mw_field_to_request_and_response(self):
+    def test_must_not_launch_exception_with_200_response(self):
+        GetControllerMock.get = lambda self, *args, **kwargs: \
+            http.Http200()
+
         self.config_module.urls = UrlModuleMock(
             (
-                url('/exp1', 'tests.mocks.controllers.GetControllerMock'),
+                url('/exp1', GetControllerMock, 'exp1'),
+            )
+        )
+
+        handler = Handler(self.config_module)
+
+        request = HttpRequestMock()
+        request.method = 'GET'
+        request.path_info = '/exp1'
+        request.accept['text/html'] = 1.0
+
+        response = handler.dispatch(request)
+
+    def test_must_not_launch_exception_with_context_data_response(self):
+        GetControllerMock.get = lambda self, *args, **kwargs: \
+            { 'title': 'Just now' }
+
+        self.config_module.urls = UrlModuleMock(
+            (
+                url('/exp1', GetControllerMock, 'exp1'),
+            )
+        )
+
+        handler = Handler(self.config_module)
+
+        request = HttpRequestMock()
+        request.method = 'GET'
+        request.path_info = '/exp1'
+        request.accept['text/html'] = 1.0
+
+        response = handler.dispatch(request)
+
+    def test_middleware_level0_must_add_mw_field_to_request_and_response(self):
+        GetControllerMock.get = lambda self, *args, **kwargs: \
+            http.Http200()
+
+        self.config_module.urls = UrlModuleMock(
+            (
+                url('/exp1', GetControllerMock, 'exp1'),
             )
         )
 
         CompleteMiddlewareLevel0Mock.process_request = lambda self, request: \
             setattr(request, 'mw', True)
+
+        CompleteMiddlewareLevel0Mock.process_response = \
+            lambda self, request, response: \
+                setattr(response, 'mw', True)
 
         self.config_module.middleware_level0.append(
             CompleteMiddlewareLevel0Mock
@@ -120,6 +174,11 @@ class HandlerTest(unittest.TestCase):
         request.accept['text/html'] = 1.0
 
         response = handler.dispatch(request)
+
+        self.assertTrue(
+            getattr(request, 'mw', False) and getattr(response, 'mw', False),
+            "Middleware level0 does not add 'mw' field to request and response"
+        )
 
 
 

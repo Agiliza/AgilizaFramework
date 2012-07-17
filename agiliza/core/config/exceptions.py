@@ -55,3 +55,7 @@ class URLBadformedException(ConfigRunnerException):
 class ConfigModuleImportException(ConfigRunnerException):
     """This exception is launched by ``ConfigRunner`` when it try to load the
     config module."""
+
+class TemplatePathException(ConfigRunnerException):
+    """This exception is launched by ``ConfigRunner`` when it check the template
+    path."""

@@ -38,6 +38,7 @@ class ConfigRunnerTest(unittest.TestCase):
             'middleware_level0': list(),
             'middleware_level1': list(),
             'urls': UrlModuleMock(tuple()),
+            'templates': { 'directory': '/' },
         })
 
     def test_config_must_load_a_config_module(self):
@@ -57,6 +58,23 @@ class ConfigRunnerTest(unittest.TestCase):
         )
 
         sys.modules.pop('my_config_module')
+
+    def test_config_must_load_template_directory(self):
+        self.config_module.templates['directory'] = '/'
+        config = ConfigRunner(self.config_module)
+
+        self.assertEqual(
+            config.templates, '/',
+            "ConfigRunner does not load template directory"
+        )
+
+    def test_config_must_raise_exception_with_template_directory(self):
+        self.config_module.templates['directory'] = '/path/to/project/'
+
+        with self.assertRaises(TemplatePathException,
+            msg="Must be raise a TemplatePathException"):
+
+            ConfigRunner(self.config_module)
 
     def test_config_must_load_an_app_name(self):
         app = ApplicationModuleMock('test_app')
@@ -330,8 +348,12 @@ class ConfigRunnerTest(unittest.TestCase):
     def test_config_must_load_url_patterns(self):
         self.config_module.urls = UrlModuleMock(
             (
-                url('/exp1', 'tests.mocks.controllers.CompleteControllerMock'),
-                url('/exp2', GetControllerMock),
+                url(
+                    '/exp1',
+                    'tests.mocks.controllers.CompleteControllerMock',
+                    'exp1'
+                ),
+                url('/exp2', GetControllerMock, 'exp2'),
             )
         )
 
@@ -340,8 +362,20 @@ class ConfigRunnerTest(unittest.TestCase):
         self.assertEqual(
             config.urls,
             (
-                (re.compile('^/exp1$'), CompleteControllerMock(), (), None, None),
-                (re.compile('^/exp2$'), GetControllerMock(), (), None, None),
+                (
+                    re.compile('^/exp1$'),
+                    CompleteControllerMock(),
+                    (),
+                    'exp1',
+                    None
+                ),
+                (
+                    re.compile('^/exp2$'),
+                    GetControllerMock(),
+                    (),
+                    'exp2',
+                    None
+                ),
             ),
             "ConfigRunner does not load url patterns"
         )
@@ -351,7 +385,8 @@ class ConfigRunnerTest(unittest.TestCase):
             (
                 url(
                     '/exp[\w-\b]',
-                    'tests.mocks.controllers.CompleteControllerMock'
+                    'tests.mocks.controllers.CompleteControllerMock',
+                    'exp1'
                 ),
             )
         )
@@ -366,7 +401,8 @@ class ConfigRunnerTest(unittest.TestCase):
             (
                 url(
                     '/exp1',
-                    'tests.mocks.controllers.NoReallyMock'
+                    'tests.mocks.controllers.NoReallyMock',
+                    'exp1'
                 ),
             )
         )
@@ -386,7 +422,8 @@ class ConfigRunnerTest(unittest.TestCase):
             (
                 url(
                     '/exp1',
-                    'test_module.NotCallableController'
+                    'test_module.NotCallableController',
+                    'exp1'
                 ),
             )
         )
@@ -404,6 +441,7 @@ class ConfigRunnerTest(unittest.TestCase):
                 url(
                     '/exp1',
                     'tests.mocks.controllers.CompleteControllerMock',
+                    'exp1',
                     context_processors=(
                         'tests.mocks.context_processors.bad_context_processor',
                     )
