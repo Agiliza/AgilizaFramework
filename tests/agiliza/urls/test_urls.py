@@ -18,7 +18,14 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Alvaro Hurtado <alvarohurtado84@gmail.com>
 """
 import unittest
+import sys
+
+from agiliza.urls import include
 from agiliza.urls import url
+from agiliza.urls import create_url
+
+from tests.mocks.utils import NiceDict
+
 
 
 class StringOrFunctionTargetUrlTest(unittest.TestCase):
@@ -228,6 +235,14 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
                 set(["common", "context"]),
                 msg="URL do not add custom context processors to the second URL"
             )
+            
+    def test_create_url_method(self):
+        self.assertEqual(
+            create_url("^url/"),
+            "^url/$",
+            msg="CreateUrl with one word must starts with '^' and finish with \
+                '$'")
+        
 
 class IncludeTargetUrlTest(unittest.TestCase):
 
@@ -462,6 +477,112 @@ class IncludeTargetUrlTest(unittest.TestCase):
                     msg="URL do not add common context processors to all URL"
                 )
 
+
+class IncludeUrlTest(unittest.TestCase):
+    def virtual_include(self, dict):
+        self.mock_urls = NiceDict(dict)
+    
+    def test_include_with_empty_urlpatterns(self):
+        self.virtual_include({"url_patterns":()})
+        
+        sys.modules.setdefault('my_project.urls', self.mock_urls)
+        include_results = include('my_project.urls')
+        
+        self.assertEqual(
+            set([]),
+            set(include_results),
+            msg="Include must return a list of tuples of Urls."
+        )
+        sys.modules.pop('my_project.urls')
+    
+    def test_include_basic(self):
+        self.virtual_include({"url_patterns":(
+            [("/exp1", "target.function")],
+            )
+        })
+        sys.modules.setdefault('my_project.urls', self.mock_urls)
+        include_results = include('my_project.urls')
+        
+        self.assertEqual(
+            set([("/exp1", "target.function")]),
+            set(include_results),
+            msg="Include must return a list of tuples of Urls."
+        )
+        sys.modules.pop('my_project.urls')
+        
+    def test_include_two_urls_in_two_list(self):
+        self.virtual_include({"url_patterns":(
+            [("/exp1", "target.function")],
+            [("/exp2", "target.function2")]
+            )
+        })
+        sys.modules.setdefault('my_project.urls', self.mock_urls)
+        
+        include_results = include('my_project.urls')
+        
+        self.assertEqual(
+            set([("/exp1", "target.function"), ("/exp2", "target.function2")]),
+            set(include_results),
+            msg="Include must return a list of tuples of Urls when it has \
+                two list with one url."
+        )
+        sys.modules.pop('my_project.urls')
+    
+    def test_include_two_urls_in_one_list(self):
+        self.virtual_include({"url_patterns":(
+            [("/exp1", "target.function"), ("/exp2", "target.function2")],
+            )
+        })
+        sys.modules.setdefault('my_project.urls', self.mock_urls)
+        include_results = include('my_project.urls')
+        
+        self.assertEqual(
+            set([("/exp1", "target.function"), ("/exp2", "target.function2")]),
+            set(include_results),
+            msg="Include must return a list of tuples of Urls when it has \
+                a list with two urls."
+        )
+        sys.modules.pop('my_project.urls')
+        
+    def test_include_with_several_urls(self):
+        self.virtual_include({"url_patterns":(
+            [("/exp1", "target.function"), ("/exp2", "target.function2")],
+            [("/exp3", "target.function3")],
+            [("/exp7", "target.function7"), ("/exp5", "target.function5")],
+            [("/exp6", "target.function6")],
+            )
+        })
+        sys.modules.setdefault('my_project.urls', self.mock_urls)
+        include_results = include('my_project.urls')
+        
+        self.assertEqual(
+            set([("/exp1", "target.function"), ("/exp2", "target.function2"),
+                ("/exp3", "target.function3"),
+                ("/exp7", "target.function7"), ("/exp6", "target.function6"),
+                ("/exp5", "target.function5")]),
+            set(include_results),
+            msg="Include must return a list of tuples of Urls when it has\
+                several urls in several lists."
+        )
+        sys.modules.pop('my_project.urls')
+        
+    def test_include_must_fail_with_not_existing_module(self):
+        with self.assertRaises(Exception,
+                          msg="Include is importin something not existing."):
+            include('my_project.urls.not_exist')
+                          
+        
+    def test_include_must_fail_without_urlpatterns(self):
+        self.virtual_include({"u":()})
+        sys.modules.setdefault('my_project.urls', self.mock_urls)
+
+        with self.assertRaises(Exception,
+            msg="Include must raise Exception if urls does not contain \
+                url_patterns."
+        ):
+            include('my_project.urls')
+        
+        sys.modules.pop('my_project.urls')
 
 
 if __name__ == '__main__':

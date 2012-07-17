@@ -115,11 +115,17 @@ def include(module_name):
         url_module = importlib.import_module(module_name)
         url_patterns = getattr(url_module, 'url_patterns')
     except ImportError:
-        pass
+        raise Exception("URLs file not found.")
     except AttributeError:
-        pass
+        raise Exception("URLs file do not contains an url_patterns.")
 
-    return [ url for url in url_patterns ]
+    urls = []
+    for url_list in url_patterns:
+        urls = urls + url_list
+        
+    return urls
+
+
 
 
 
