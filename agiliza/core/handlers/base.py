@@ -96,7 +96,7 @@ class Handler(object):
                     template_name = url_name + "." + accept_subtype
 
                 template_path = self.config.templates + template_name
-
+                print(template_path)
                 if os.path.isfile(template_path):
                     any_accepted = True
                     break
@@ -124,13 +124,13 @@ class Handler(object):
             context_data.update(response_data)
             render = self.Render(
                 template = template_path,
-                context = context_data,
+                context_data = context_data,
+                template_path=self.config.templates,
             )
 
-
-            response = http.HttpResponse(
+            response = http.HttpResponseOk(
                 content = render.render(),
-                content_type = accept,
+                content_type = accept[0]
             )
 
 

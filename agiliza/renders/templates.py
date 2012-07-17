@@ -27,9 +27,10 @@ from agiliza.renders.base import Render
 
 
 class Templates(Render):
-    def __init__(self, context_data=None, template=None, *args, **kwargs):
+    def __init__(self, context_data={}, template=None, template_path=".", *args, **kwargs):
         self.context_data = context_data
         self.template = template
+        self.template_path = template_path
 
     def set_template(self, template):
         self.template = template
@@ -37,8 +38,9 @@ class Templates(Render):
 
 class Jinja2Render(Templates):
     def render(self):
-        env = Environment(loader=MyLoader("./templates"))
+        env = Environment(loader=MyLoader(self.template_path))
         template = env.loader.load(env, self.template)
+
         return template.render(self.context_data)
 
 
@@ -55,6 +57,6 @@ class MyLoader(BaseLoader):
         if not exists(path):
             raise TemplateNotFound(template)
         mtime = getmtime(path)
-        with file(path) as f:
-            source = f.read().decode('utf-8')
+        with open(path) as f:
+            source = f.read()
         return source, path, lambda: mtime == getmtime(path)

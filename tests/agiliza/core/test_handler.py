@@ -185,6 +185,32 @@ class HandlerTest(unittest.TestCase):
             "Middleware level0 does not add 'mw' field to request and response"
         )
 
+    def test_must_render_a_response(self):
+        self.config_module.templates['directory'] = \
+            os.path.join(os.getcwd(), 'tests/data/templates/')
+
+        GetControllerMock.get = lambda self, *args, **kwargs: \
+            { 'title': 'Just now' }
+
+        self.config_module.urls = UrlModuleMock(
+            (
+                url('/home', GetControllerMock, 'home'),
+            )
+        )
+
+        handler = Handler()
+
+        request = HttpRequestMock()
+        request.method = 'GET'
+        request.path_info = '/home'
+        request.accept['text/html'] = 1.0
+
+        response = handler.dispatch(request)
+
+        print(response.content)
+        assert False
+
+
 
 
 if __name__ == '__main__':
