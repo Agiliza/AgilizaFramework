@@ -74,6 +74,7 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.5,
 """
 import cgi
 import urllib
+from http.cookies import SimpleCookie
 
 from agiliza.http.exceptions import HttpNegativeContentLengthException
 from agiliza.http.parser import parse_accept_header
@@ -107,6 +108,7 @@ class HttpRequest(object):
         accept_hdr = self.meta.get('HTTP_ACCEPT', 'text/html') # TODO settings
         self.accept = parse_accept_header(accept_hdr)
         self._stream = self.meta['wsgi.input']
+        self.cookies = SimpleCookie()
         # Cached values
         self._host = None
         self._full_path = None
