@@ -16,39 +16,40 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Copyright (c) 2012 Álvaro Hurtado <alvarohurtado84@gmail.com>
+Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-import agiliza.render.base import Render
+from os.path import join, exists, getmtime
 
 from jinja2 import Environment
 from jinja2 import BaseLoader, TemplateNotFound
 
-from os.path import join, exists, getmtime
+from agiliza.renders.base import Render
 
 
 class Templates(Render):
     def __init__(self, context_data=None, template=None, *args, **kwargs):
         self.context_data = context_data
         self.template = template
-    
+
     def set_template(self, template):
         self.template = template
-    
-    
+
+
 class Jinja2Render(Templates):
     def render(self):
         env = Environment(loader=MyLoader("./templates"))
         template = env.loader.load(env, self.template)
-        return template.render(self.context_data) 
-    
-    
-    
+        return template.render(self.context_data)
+
+
+
 class MyLoader(BaseLoader):
     """
     Loader provisional. Usaremos FileSystemLoader
     """
     def __init__(self, path):
         self.path = path
-        
+
     def get_source(self, environment, template):
         path = join(self.path, template)
         if not exists(path):
@@ -57,4 +58,3 @@ class MyLoader(BaseLoader):
         with file(path) as f:
             source = f.read().decode('utf-8')
         return source, path, lambda: mtime == getmtime(path)
-    

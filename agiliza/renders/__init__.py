@@ -16,4 +16,6 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Copyright (c) 2012 Álvaro Hurtado <alvarohurtado84@gmail.com>
+Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
+from agiliza.renders.templates import Jinja2Render
