@@ -19,17 +19,8 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 import types
 
+from tests.mocks.utils import NiceDict
 
-class NiceDict(dict):
-    def __getattr__(self, key):
-        if key not in self.keys():
-            return super(NiceDict, self).__getattr__(key)
-        return self[key]
-
-    def __setattr__(self, key, value):
-        if key not in self.keys():
-            return super(NiceDict, self).__setattr__(key, value)
-        self[key] = value
 
 class ConfigModuleMock(NiceDict):
     """Simulate the module ``site/config`` with initial configuration."""

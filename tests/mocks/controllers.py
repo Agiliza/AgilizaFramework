@@ -18,9 +18,10 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 from agiliza.controllers import Controller
+from tests.mocks.utils import Singleton
 
 
-class CompleteControllerMock(Controller):
+class CompleteControllerMock(Singleton, Controller):
     def get(self, *args, **kwargs):
         return {}
 
@@ -34,21 +35,21 @@ class CompleteControllerMock(Controller):
         return {}
 
 
-class GetControllerMock(Controller):
+class GetControllerMock(Singleton, Controller):
     def get(self, *args, **kwargs):
         return {}
 
 
-class PostControllerMock(Controller):
+class PostControllerMock(Singleton, Controller):
     def post(self, *args, **kwargs):
         return {}
 
 
-class PutControllerMock(Controller):
+class PutControllerMock(Singleton, Controller):
     def put(self, *args, **kwargs):
         return {}
 
 
-class DeleteControllerMock(Controller):
+class DeleteControllerMock(Singleton, Controller):
     def delete(self, *args, **kwargs):
         return {}
