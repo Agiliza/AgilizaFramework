@@ -105,8 +105,13 @@ class ConfigRunner(object):
             if isinstance(middleware_name, str):
                 try:
                     middleware = import_object(middleware_name)
+                    middleware = middleware()
                 except (ImportError, AttributeError) as error:
                     raise InvalidMiddlewareException(error)
+                except TypeError as error: # It is not callable
+                    raise ControllerNotFoundException(error)
+            elif callable(middleware_name):
+                middleware = middleware_name()
             else:
                 middleware = middleware_name
 
@@ -149,7 +154,8 @@ class ConfigRunner(object):
                     raise ControllerNotFoundException(error)
                 except TypeError as error: # It is not callable
                     raise ControllerNotFoundException(error)
-            elif callable(target):
+
+            if callable(target):
                 target = target()
 
             try:

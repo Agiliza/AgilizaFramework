@@ -28,6 +28,7 @@ from agiliza.core.handlers.exceptions import *
 from agiliza.urls import url, include
 from tests.mocks.config import *
 from tests.mocks.controllers import *
+from tests.mocks.middleware import *
 from tests.mocks.request import *
 
 
@@ -81,7 +82,8 @@ class HandlerTest(unittest.TestCase):
     def test_must_raise_http_405_using_controller_without_get_method(self):
         self.config_module.urls = UrlModuleMock(
             (
-                url('/exp1', 'tests.mocks.controllers.PutControllerMock'),
+                url('/exp1', 'tests.mocks.controllers.GetControllerMock'),
+                url('/exp2', 'tests.mocks.controllers.PutControllerMock'),
             )
         )
 
@@ -89,12 +91,35 @@ class HandlerTest(unittest.TestCase):
 
         request = HttpRequestMock()
         request.method = 'GET'
-        request.path_info = '/exp1'
+        request.path_info = '/exp2'
 
         with self.assertRaises(http.Http405,
             msg="Must be raise a InvalidConfigModuleException"):
 
             handler.dispatch(request)
+
+    def test_middleware_level0_must_add_mw_field_to_request_and_response(self):
+        self.config_module.urls = UrlModuleMock(
+            (
+                url('/exp1', 'tests.mocks.controllers.GetControllerMock'),
+            )
+        )
+
+        CompleteMiddlewareLevel0Mock.process_request = lambda self, request: \
+            setattr(request, 'mw', True)
+
+        self.config_module.middleware_level0.append(
+            CompleteMiddlewareLevel0Mock
+        )
+
+        handler = Handler(self.config_module)
+
+        request = HttpRequestMock()
+        request.method = 'GET'
+        request.path_info = '/exp1'
+        request.accept['text/html'] = 1.0
+
+        response = handler.dispatch(request)
 
 
 

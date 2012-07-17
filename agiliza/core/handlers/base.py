@@ -58,7 +58,7 @@ class Handler(object):
             if results is not None:
                 params = results.groupdict()
                 url_regex, url_controller, \
-                    url_context_processors, url_name, url_name = url
+                    url_context_processors, url_name, url_layout = url
                 found = True
                 break
 
@@ -77,8 +77,7 @@ class Handler(object):
             cookies=request.cookies, #TODO
         )
 
-        if not isinstance(response, http.HttpResponse):
-
+        if not isinstance(response, http.response.HttpResponse):
             response_data = response
 
             #"""
@@ -86,18 +85,22 @@ class Handler(object):
             #It is: url_name + [_ + url_layout] + . + accept_subtype
             #"""
             accepts = sorted(
-                [[key, request.accept[key]] for key in request.accept.keys()],
+                [
+                    [key, request.accept[key]]
+                    for key in request.accept.keys()
+                ],
                 key=lambda accept: accept[1],
                 reverse=True
-                )
+            )
 
             any_accepted = None
             for accept in accepts:
                 accept_subtype = accept[0].split("/")[1]
                 if url_layout:
-                    template_name = url_name+"_" + url_layout + "." + accept_subtype
+                    template_name = url_name + "_" + url_layout + \
+                        "." + accept_subtype
                 else:
-                    template_name = url_name+"."+accept_subtype
+                    template_name = url_name + "." + accept_subtype
 
                 template_path = self.config.templates + template_name
 
@@ -107,7 +110,7 @@ class Handler(object):
 
 
             if not any_accepted:
-                raise HttpResponseUnsuporttedMediaType()
+                raise http.HttpResponseUnsupportedMediaType()
 
 
             #"""
@@ -116,11 +119,13 @@ class Handler(object):
             context_data = {}
             for context_processor in url_context_processors:
                 context_data.update(
-                    context_processor(request,
-                                  params,
-                                  self.config.settings,
-                                  request.session)
+                    context_processor(
+                        request,
+                        params,
+                        self.config.settings,
+                        request.session
                     )
+                )
 
             #"""
             #Render the template with response + request + contexts_info
@@ -135,7 +140,7 @@ class Handler(object):
             response = http.HttpResponse(
                 content = render.render(),
                 content_type = accept,
-                )
+            )
 
 
         response.set_cookies(cookies)

@@ -208,9 +208,9 @@ class ConfigRunnerTest(unittest.TestCase):
 
         self.assertEqual(
             config.middleware_level0, (
-                CompleteMiddlewareLevel0Mock,
-                ProcessRequestMiddlewareLevel0Mock,
-                ProcessResponseMiddlewareLevel0Mock,
+                CompleteMiddlewareLevel0Mock(),
+                ProcessRequestMiddlewareLevel0Mock(),
+                ProcessResponseMiddlewareLevel0Mock(),
             ),
             "ConfigRunner does not load a middleware list"
         )
@@ -231,7 +231,7 @@ class ConfigRunnerTest(unittest.TestCase):
         config = ConfigRunner(self.config_module)
 
         self.assertEqual(
-            config.middleware_level0, (CompleteMiddlewareLevel0Mock,),
+            config.middleware_level0, (CompleteMiddlewareLevel0Mock(),),
             "ConfigRunner does not load middleware_level0"
         )
 
@@ -267,9 +267,9 @@ class ConfigRunnerTest(unittest.TestCase):
 
         self.assertEqual(
             config.middleware_level1, (
-                CompleteMiddlewareLevel1Mock,
-                ProcessControllerMiddlewareLevel1Mock,
-                ProcessRenderMiddlewareLevel1Mock,
+                CompleteMiddlewareLevel1Mock(),
+                ProcessControllerMiddlewareLevel1Mock(),
+                ProcessRenderMiddlewareLevel1Mock(),
             ),
             "ConfigRunner does not load a middleware list"
         )
@@ -292,7 +292,7 @@ class ConfigRunnerTest(unittest.TestCase):
         config = ConfigRunner(self.config_module)
 
         self.assertEqual(
-            config.middleware_level1, (CompleteMiddlewareLevel1Mock,),
+            config.middleware_level1, (CompleteMiddlewareLevel1Mock(),),
             "ConfigRunner does not load middleware_level1"
         )
 
@@ -344,6 +344,28 @@ class ConfigRunnerTest(unittest.TestCase):
             msg="Controller not found"):
 
             ConfigRunner(self.config_module)
+
+    def test_config_must_not_load_an_not_callable_controller(self):
+        test_module = types.ModuleType('test_module')
+        test_module.NotCallableController = 'fake'
+
+        sys.modules.setdefault('test_module', test_module)
+
+        self.config_module.urls = UrlModuleMock(
+            (
+                url(
+                    '/exp1',
+                    'test_module.NotCallableController'
+                ),
+            )
+        )
+
+        with self.assertRaises(ControllerNotFoundException,
+            msg="Controller not callable"):
+
+            ConfigRunner(self.config_module)
+
+        sys.modules.pop('test_module')
 
     def test_config_must_raise_on_bad_context_processor(self):
         self.config_module.urls = UrlModuleMock(
