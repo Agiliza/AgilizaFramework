@@ -21,11 +21,12 @@ import os
 import sys
 import unittest
 
+from agiliza import http
 from agiliza.core.config import ConfigRunner
 from agiliza.core.handlers import Handler
+from agiliza.core.handlers.exceptions import *
 from tests.mocks.config import *
-from tests.mocks.controllers import *
-from tests.mocks.middleware import *
+from tests.mocks.request import *
 
 
 class HandlerTest(unittest.TestCase):
@@ -55,6 +56,22 @@ class HandlerTest(unittest.TestCase):
             isinstance(handler.config, ConfigRunner),
             "Handler does not load from config module"
         )
+
+        sys.modules.pop('my_project.config')
+
+    def test_must_fail_without_config_info(self):
+        with self.assertRaises(InvalidConfigModuleException,
+            msg="Must be raise a InvalidConfigModuleException"):
+
+            Handler()
+
+    def test_bad_request_______________________(self):
+        handler = Handler(self.config_module)
+
+        with self.assertRaises(http.Http404,
+            msg="Must be raise a InvalidConfigModuleException"):
+
+            handler.dispatch(HttpRequestMock())
 
 
 

@@ -23,12 +23,16 @@ import os
 
 from agiliza import http
 from agiliza.core.config import ConfigRunner
+from agiliza.core.handlers.exceptions import InvalidConfigModuleException
 
 
 class Handler(object):
     def __init__(self, config_module=None):
         if not config_module:
-            config_module = os.environ['AGILIZA_CONFIG']
+            try:
+                config_module = os.environ['AGILIZA_CONFIG']
+            except KeyError:
+                raise InvalidConfigModuleException
 
         self.config = ConfigRunner(config_module)
 
