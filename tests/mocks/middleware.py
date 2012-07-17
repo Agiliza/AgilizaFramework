@@ -17,27 +17,30 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-class BadMiddlewareMock(object):
+from tests.mocks.utils import Singleton
+
+
+class BadMiddlewareMock(Singleton):
     pass
 
 
-class CompleteMiddlewareLevel0Mock(object):
+class CompleteMiddlewareLevel0Mock(Singleton):
     def process_request(self, request):
         pass
 
     def process_response(self, request, response):
         pass
 
-class ProcessRequestMiddlewareLevel0Mock(object):
+class ProcessRequestMiddlewareLevel0Mock(Singleton):
     def process_request(self, request):
         pass
 
-class ProcessResponseMiddlewareLevel0Mock(object):
+class ProcessResponseMiddlewareLevel0Mock(Singleton):
     def process_response(self, request, response):
         pass
 
 
-class CompleteMiddlewareLevel1Mock(object):
+class CompleteMiddlewareLevel1Mock(Singleton):
     def process_controller(self, request, controllerfunc, controllerargs,
         controllerkwargs):
         pass
@@ -45,11 +48,11 @@ class CompleteMiddlewareLevel1Mock(object):
     def process_render(self, request, response, render):
         pass
 
-class ProcessControllerMiddlewareLevel1Mock(object):
+class ProcessControllerMiddlewareLevel1Mock(Singleton):
     def process_controller(self, request, controllerfunc, controllerargs,
         controllerkwargs):
         pass
 
-class ProcessRenderMiddlewareLevel1Mock(object):
+class ProcessRenderMiddlewareLevel1Mock(Singleton):
     def process_render(self, request, response, render):
         pass

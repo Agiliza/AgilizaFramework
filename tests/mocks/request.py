@@ -20,5 +20,6 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 class HttpRequestMock(object):
     method = 'GET'
     path_info = '/'
+    accept = {}
     session = None
     cookies = None
