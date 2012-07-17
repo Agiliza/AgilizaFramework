@@ -143,9 +143,14 @@ class ConfigRunner(object):
 
             if isinstance(target, str):
                 try:
-                    target = import_object(target)
+                    target_class = import_object(target)
+                    target = target_class()
                 except (ImportError, AttributeError) as error:
                     raise ControllerNotFoundException(error)
+                except TypeError as error: # It is not callable
+                    raise ControllerNotFoundException(error)
+            elif callable(target):
+                target = target()
 
             try:
                 context_processors = tuple([

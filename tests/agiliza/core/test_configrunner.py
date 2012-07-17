@@ -309,8 +309,8 @@ class ConfigRunnerTest(unittest.TestCase):
         self.assertEqual(
             config.urls,
             (
-                (re.compile('^/exp1$'), CompleteControllerMock, (), None, None),
-                (re.compile('^/exp2$'), GetControllerMock, (), None, None),
+                (re.compile('^/exp1$'), CompleteControllerMock(), (), None, None),
+                (re.compile('^/exp2$'), GetControllerMock(), (), None, None),
             ),
             "ConfigRunner does not load url patterns"
         )
