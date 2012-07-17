@@ -17,28 +17,9 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-from agiliza import http
-from agiliza.core.utils.decorators import cached_property
+class SessionMiddleware(object):
+    def process_request(self, request):
+        pass
 
-
-class Controller(object):
-
-    @cached_property
-    def permitted_methods(self):
-        methods = tuple([
-            method_name
-            for method_name in http.HTTP_METHODS
-            if getattr(self, method_name.lower(), None)
-        ])
-
-        return methods
-
-    def dispatch(self, request, params):
-        method_name = request.method.lower()
-
-        try:
-            method = getattr(self, method_name)
-        except AttributeError:
-            raise http.HttpResponseMethodNotAllowed(self.permitted_methods)
-
-        return method(request, params)
+    def process_response(self, request, response):
+        pass

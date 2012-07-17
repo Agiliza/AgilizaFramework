@@ -74,10 +74,7 @@ class Handler(object):
         #"""
         response = url_controller.dispatch(
             request=request,
-            params=params,
-            settings=self.config.settings,
-            session=request.session, #TODO
-            cookies=cookies, #TODO
+            params=params
         )
 
         if not isinstance(response, http.response.HttpResponse):
@@ -124,9 +121,7 @@ class Handler(object):
                 context_data.update(
                     context_processor(
                         request,
-                        params,
-                        self.config.settings,
-                        request.session
+                        params
                     )
                 )
 
@@ -146,7 +141,7 @@ class Handler(object):
             )
 
 
-        response.cookies = cookies
+        response.cookies = request.cookies
 
         #"""
         #Execute level-0 Middlewares OUT

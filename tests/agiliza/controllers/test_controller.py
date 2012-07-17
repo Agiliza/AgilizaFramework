@@ -36,12 +36,12 @@ class ControllerTest(unittest.TestCase):
 
         with self.assertRaises(http.HttpResponseMethodNotAllowed,
             msg="Must be raise a HttpResponseMethodNotAllowed"):
-            c.dispatch(self.request, None, None, None, None)
+            c.dispatch(self.request, None)
 
     def test_must_launch_get_method(self):
         self.request.method = 'GET'
         c = GetControllerMock()
-        context_data = c.dispatch(self.request, None, None, None, None)
+        context_data = c.dispatch(self.request, None)
 
         self.assertEqual(
             context_data, {},
