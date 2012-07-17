@@ -24,6 +24,9 @@ from agiliza.urls import include
 from agiliza.urls import url
 from agiliza.urls import create_url
 
+from agiliza.urls.exceptions import NoneNameException, \
+    UrlFileNotFoundException, UrlPatternsNotFoundException
+
 from tests.mocks.utils import NiceDict
 
 
@@ -31,27 +34,28 @@ from tests.mocks.utils import NiceDict
 class StringOrFunctionTargetUrlTest(unittest.TestCase):
 
     def test_create_url(self):
-        created_url = url("", "blog.controller.home", )
+        created_url = url("", "blog.controller.home", name="one" )
 
         self.assertEqual(
             created_url,
-            [("^$", "blog.controller.home", [], None, None),],
+            [("^$", "blog.controller.home", [], "one", None),],
             msg="URL do not create a simple url tuple"
         )
 
-    def test_create_url_with_name(self):
-        created_url = url("", "blog.controller.home", name="blog")
+    def test_create_url_with_none_name(self):
 
-        self.assertEqual(
-            created_url,
-            [("^$", "blog.controller.home", [], "blog", None)],
-            msg="URL do not create a url with name"
-        )
+        with self.assertRaises(
+            NoneNameException,
+            msg="URL without a include method as target can not have a \
+                None name or empty Name"
+        ):
+            created_url = url("", "blog.controller.home",)
 
     def test_create_url_with_context_processors(self):
         created_url = url(
             "",
             "blog.controller.home",
+            name="one",
             context_processors=["menu", "users"]
         )
 
@@ -65,6 +69,7 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
         created_url = url(
             "",
             "blog.controller.home",
+            name="one",
             layouts={
                 "default":{
                     "url_prefix":"blog/",
@@ -75,7 +80,7 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
 
         self.assertEqual(
             created_url,
-            [("^blog/$", "blog.controller.home", [], None, "default")],
+            [("^blog/$", "blog.controller.home", [], "one", "default")],
             msg="URL do not create a url with one layout without \
                 context_processors"
         )
@@ -84,6 +89,7 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
         created_url = url(
             "",
             "blog.controller.home",
+            name="one",
             layouts={
                 "default":{
                     "url_prefix":"blog/",
@@ -102,6 +108,7 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
         created_url = url(
             "",
             "blog.controller.home",
+            name="one",
             layouts={
                 "default":{
                     "url_prefix":None,
@@ -117,8 +124,8 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
         self.assertEqual(
             sorted(created_url),
             sorted([
-                ("^$", "blog.controller.home", [], None, "default"),
-                ("^android/$", "blog.controller.home", [], None, "android")
+                ("^$", "blog.controller.home", [], "one", "default"),
+                ("^android/$", "blog.controller.home", [], "one", "android")
             ]),
             msg="URL do not create a url with multiple layouts without \
                 context_processors"
@@ -128,6 +135,7 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
         created_url = url(
             "",
             "blog.controller.home",
+            name="one",
             layouts={
                 "default":{
                     "url_prefix":None,
@@ -157,6 +165,7 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
         created_url = url(
             "",
             "blog.controller.home",
+            name="one",
             layouts={
                 "default":{
                     "url_prefix":None,
@@ -198,6 +207,7 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
         created_url = url(
             "",
             "blog.controller.home",
+            name="one",
             layouts={
                 "default":{
                     "url_prefix":None,
@@ -250,16 +260,16 @@ class IncludeTargetUrlTest(unittest.TestCase):
         created_url = url(
             "blog/",
             [
-                ("^$", "blog.controller.home", [],  None, None),
-                ("^post/$", "blog.controller.post", [], None, None),
+                ("^$", "blog.controller.home", [],  "one", None),
+                ("^post/$", "blog.controller.post", [], "two", None),
             ]
         )
 
         self.assertEqual(
             sorted(created_url),
             sorted([
-                ("^blog/$", "blog.controller.home", [], None, None),
-                ("^blog/post/$", "blog.controller.post", [], None, None),
+                ("^blog/$", "blog.controller.home", [], "one", None),
+                ("^blog/post/$", "blog.controller.post", [], "two", None),
             ]),
             msg="URL do not create good urls from include"
         )
@@ -268,7 +278,7 @@ class IncludeTargetUrlTest(unittest.TestCase):
         created_url = url(
             "blog/",
             [
-                ("^$", "blog.controller.home", [],  None, None),
+                ("^$", "blog.controller.home", [],  "get", None),
                 ("^post/$", "blog.controller.post", [], "post", None),
             ]
         )
@@ -276,7 +286,7 @@ class IncludeTargetUrlTest(unittest.TestCase):
         self.assertEqual(
             sorted(created_url),
             sorted([
-                ("^blog/$", "blog.controller.home", [], None, None),
+                ("^blog/$", "blog.controller.home", [], "get", None),
                 ("^blog/post/$", "blog.controller.post", [], "post", None),
             ]),
             msg="URL do not create good urls from include with names"
@@ -287,8 +297,8 @@ class IncludeTargetUrlTest(unittest.TestCase):
         created_url = url(
             "blog/",
             [
-                ("^$", "blog.controller.home", [],  None, None),
-                ("^post/$", "blog.controller.post", [], None, None),
+                ("^$", "blog.controller.home", [],  "home", None),
+                ("^post/$", "blog.controller.post", [], "post", None),
             ],
             context_processors=["menu", "users"],
         )
@@ -296,8 +306,8 @@ class IncludeTargetUrlTest(unittest.TestCase):
         self.assertEqual(
             sorted(created_url),
             sorted([
-                ("^blog/$", "blog.controller.home", ["menu", "users"], None, None),
-                ("^blog/post/$", "blog.controller.post", ["menu", "users"], None, None),
+                ("^blog/$", "blog.controller.home", ["menu", "users"], "home", None),
+                ("^blog/post/$", "blog.controller.post", ["menu", "users"], "post", None),
             ]),
             msg="URL do not create good urls with common context processors"
         )
@@ -307,8 +317,8 @@ class IncludeTargetUrlTest(unittest.TestCase):
         created_url = url(
             "blog/",
             [
-                ("^$", "blog.controller.home", [],  None, None),
-                ("^post/$", "blog.controller.post", [], None, None),
+                ("^$", "blog.controller.home", [],  "home", None),
+                ("^post/$", "blog.controller.post", [], "post", None),
             ],
             layouts={
                 "default":{
@@ -321,8 +331,8 @@ class IncludeTargetUrlTest(unittest.TestCase):
         self.assertEqual(
             sorted(created_url),
             sorted([
-                ("^myweb/blog/$", "blog.controller.home", [], None, "default"),
-                ("^myweb/blog/post/$", "blog.controller.post", [], None, "default"),
+                ("^myweb/blog/$", "blog.controller.home", [], "home", "default"),
+                ("^myweb/blog/post/$", "blog.controller.post", [], "post", "default"),
             ]),
             msg="URL do not create good urls from include with layout \
                 without context_processors"
@@ -332,8 +342,8 @@ class IncludeTargetUrlTest(unittest.TestCase):
         created_url = url(
             "blog/",
             [
-                ("^$", "blog.controller.home", [],  None, None),
-                ("^post/$", "blog.controller.post", [], None, None),
+                ("^$", "blog.controller.home", [],  "home", None),
+                ("^post/$", "blog.controller.post", [], "post", None),
             ],
             layouts={
                 "default":{
@@ -346,8 +356,8 @@ class IncludeTargetUrlTest(unittest.TestCase):
         self.assertEqual(
             sorted(created_url),
             sorted([
-                ("^myweb/blog/$", "blog.controller.home", ["menu", "users"], None, "default"),
-                ("^myweb/blog/post/$", "blog.controller.post", ["menu", "users"], None, "default"),
+                ("^myweb/blog/$", "blog.controller.home", ["menu", "users"], "home", "default"),
+                ("^myweb/blog/post/$", "blog.controller.post", ["menu", "users"], "post", "default"),
             ]),
             msg="URL do not create good urls from include with layout"
         )
@@ -356,8 +366,8 @@ class IncludeTargetUrlTest(unittest.TestCase):
         created_url = url(
             "blog/",
             [
-                ("^$", "blog.controller.home", [],  None, None),
-                ("^post/$", "blog.controller.post", [], None, None),
+                ("^$", "blog.controller.home", [],  "home", None),
+                ("^post/$", "blog.controller.post", [], "post", None),
             ],
             layouts={
                 "default":{
@@ -374,10 +384,10 @@ class IncludeTargetUrlTest(unittest.TestCase):
         self.assertEqual(
             sorted(created_url),
             sorted([
-                ("^myweb/blog/$", "blog.controller.home", [], None, "default"),
-                ("^myweb/blog/post/$", "blog.controller.post", [], None, "default"),
-                ("^android/blog/$", "blog.controller.home", [], None, "android"),
-                ("^android/blog/post/$", "blog.controller.post", [], None, "android"),
+                ("^myweb/blog/$", "blog.controller.home", [], "home", "default"),
+                ("^myweb/blog/post/$", "blog.controller.post", [], "post", "default"),
+                ("^android/blog/$", "blog.controller.home", [], "home", "android"),
+                ("^android/blog/post/$", "blog.controller.post", [], "post", "android"),
             ]),
             msg="URL do not create good urls from include with several \
                 layouts without context_processors"
@@ -387,8 +397,8 @@ class IncludeTargetUrlTest(unittest.TestCase):
         created_url = url(
             "blog/",
             [
-                ("^$", "blog.controller.home", [],  None, None),
-                ("^post/$", "blog.controller.post", [], None, None),
+                ("^$", "blog.controller.home", [],  "home", None),
+                ("^post/$", "blog.controller.post", [], "post", None),
             ],
             layouts={
                 "default":{
@@ -406,10 +416,10 @@ class IncludeTargetUrlTest(unittest.TestCase):
         self.assertEqual(
             sorted(created_url),
             sorted([
-                ("^myweb/blog/$", "blog.controller.home", ["users", "menu"], None, "default"),
-                ("^myweb/blog/post/$", "blog.controller.post", ["users", "menu"], None, "default"),
-                ("^android/blog/$", "blog.controller.home", ["mobile"], None, "android"),
-                ("^android/blog/post/$", "blog.controller.post", ["mobile"], None, "android"),
+                ("^myweb/blog/$", "blog.controller.home", ["users", "menu"], "home", "default"),
+                ("^myweb/blog/post/$", "blog.controller.post", ["users", "menu"], "post", "default"),
+                ("^android/blog/$", "blog.controller.home", ["mobile"], "home", "android"),
+                ("^android/blog/post/$", "blog.controller.post", ["mobile"], "post", "android"),
             ]),
             msg="URL do not create good urls from include with several layouts"
         )
@@ -419,8 +429,8 @@ class IncludeTargetUrlTest(unittest.TestCase):
         created_url = url(
             "blog/",
             [
-                ("^$", "blog.controller.home", [],  None, None),
-                ("^post/$", "blog.controller.post", [], None, None),
+                ("^$", "blog.controller.home", [],  "home", None),
+                ("^post/$", "blog.controller.post", [], "post", None),
             ],
             layouts={
                 "default":{
@@ -447,8 +457,8 @@ class IncludeTargetUrlTest(unittest.TestCase):
         created_url = url(
             "blog/",
             [
-                ("^$", "blog.controller.home", [],  None, None),
-                ("^post/$", "blog.controller.post", [], None, None),
+                ("^$", "blog.controller.home", [],  "home", None),
+                ("^post/$", "blog.controller.post", [], "post", None),
             ],
             layouts={
                 "default":{
@@ -497,14 +507,14 @@ class IncludeUrlTest(unittest.TestCase):
     
     def test_include_basic(self):
         self.virtual_include({"url_patterns":(
-            [("/exp1", "target.function")],
+            [("/exp1", "target.function", (), "function", None)],
             )
         })
         sys.modules.setdefault('my_project.urls', self.mock_urls)
         include_results = include('my_project.urls')
         
         self.assertEqual(
-            set([("/exp1", "target.function")]),
+            set([("/exp1", "target.function", (), "function", None)]),
             set(include_results),
             msg="Include must return a list of tuples of Urls."
         )
@@ -512,8 +522,8 @@ class IncludeUrlTest(unittest.TestCase):
         
     def test_include_two_urls_in_two_list(self):
         self.virtual_include({"url_patterns":(
-            [("/exp1", "target.function")],
-            [("/exp2", "target.function2")]
+            [("/exp1", "target.function", (), "function", None)],
+            [("/exp2", "target.function2", (), "function2", None)]
             )
         })
         sys.modules.setdefault('my_project.urls', self.mock_urls)
@@ -521,7 +531,8 @@ class IncludeUrlTest(unittest.TestCase):
         include_results = include('my_project.urls')
         
         self.assertEqual(
-            set([("/exp1", "target.function"), ("/exp2", "target.function2")]),
+            set([("/exp1", "target.function", (), "function", None),
+                ("/exp2", "target.function2", (), "function2", None)]),
             set(include_results),
             msg="Include must return a list of tuples of Urls when it has \
                 two list with one url."
@@ -530,14 +541,16 @@ class IncludeUrlTest(unittest.TestCase):
     
     def test_include_two_urls_in_one_list(self):
         self.virtual_include({"url_patterns":(
-            [("/exp1", "target.function"), ("/exp2", "target.function2")],
+            [("/exp1", "target.function", (), "function", None),
+            ("/exp2", "target.function2", (), "function2", None)],
             )
         })
         sys.modules.setdefault('my_project.urls', self.mock_urls)
         include_results = include('my_project.urls')
         
         self.assertEqual(
-            set([("/exp1", "target.function"), ("/exp2", "target.function2")]),
+            set([("/exp1", "target.function", (), "function", None),
+                ("/exp2", "target.function2", (), "function2", None)]),
             set(include_results),
             msg="Include must return a list of tuples of Urls when it has \
                 a list with two urls."
@@ -546,20 +559,24 @@ class IncludeUrlTest(unittest.TestCase):
         
     def test_include_with_several_urls(self):
         self.virtual_include({"url_patterns":(
-            [("/exp1", "target.function"), ("/exp2", "target.function2")],
-            [("/exp3", "target.function3")],
-            [("/exp7", "target.function7"), ("/exp5", "target.function5")],
-            [("/exp6", "target.function6")],
+            [("/exp1", "target.function", (), "function", None),
+                ("/exp2", "target.function2", (), "function2", None)],
+            [("/exp3", "target.function3", (), "function3", None)],
+            [("/exp7", "target.function7", (), "function7", None),
+                ("/exp5", "target.function5", (), "function5", None)],
+            [("/exp6", "target.function6", (), "function6", None)],
             )
         })
         sys.modules.setdefault('my_project.urls', self.mock_urls)
         include_results = include('my_project.urls')
         
         self.assertEqual(
-            set([("/exp1", "target.function"), ("/exp2", "target.function2"),
-                ("/exp3", "target.function3"),
-                ("/exp7", "target.function7"), ("/exp6", "target.function6"),
-                ("/exp5", "target.function5")]),
+            set([("/exp1", "target.function", (), "function", None),
+                ("/exp2", "target.function2", (), "function2", None),
+                ("/exp3", "target.function3", (), "function3", None),
+                ("/exp7", "target.function7", (), "function7", None),
+                ("/exp6", "target.function6", (), "function6", None),
+                ("/exp5", "target.function5", (), "function5", None)]),
             set(include_results),
             msg="Include must return a list of tuples of Urls when it has\
                 several urls in several lists."
@@ -567,7 +584,7 @@ class IncludeUrlTest(unittest.TestCase):
         sys.modules.pop('my_project.urls')
         
     def test_include_must_fail_with_not_existing_module(self):
-        with self.assertRaises(Exception,
+        with self.assertRaises(UrlFileNotFoundException,
                           msg="Include is importin something not existing."):
             include('my_project.urls.not_exist')
                           
@@ -576,7 +593,7 @@ class IncludeUrlTest(unittest.TestCase):
         self.virtual_include({"u":()})
         sys.modules.setdefault('my_project.urls', self.mock_urls)
 
-        with self.assertRaises(Exception,
+        with self.assertRaises(UrlPatternsNotFoundException,
             msg="Include must raise Exception if urls does not contain \
                 url_patterns."
         ):

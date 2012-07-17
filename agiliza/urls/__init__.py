@@ -19,9 +19,10 @@ Copyright (c) 2012 Alvaro Hurtado <alvarohurtado84@gmail.com>
 """
 import importlib
 
+from agiliza.urls.exceptions import NoneNameException, \
+    UrlFileNotFoundException, UrlPatternsNotFoundException
 
-def url(expression, target, layouts=None,
-        name=None, context_processors=[]):
+def url(expression, target, name=None, layouts=None, context_processors=[]):
     """
     Create a list of urls.
     Must return one of these:
@@ -39,6 +40,9 @@ def url(expression, target, layouts=None,
     urls=[]
 
     if isinstance(target, str) or callable(target):
+        if name is None or name is "":
+            raise NoneNameException("Name can not be None if target is not \
+                                    a include method.")
         # if target is a String (pointing a function) or a Function
         if layouts:
             # if url() is called with layouts
@@ -115,9 +119,9 @@ def include(module_name):
         url_module = importlib.import_module(module_name)
         url_patterns = getattr(url_module, 'url_patterns')
     except ImportError:
-        raise Exception("URLs file not found.")
+        raise UrlFileNotFoundException("URLs file not found.")
     except AttributeError:
-        raise Exception("URLs file do not contains an url_patterns.")
+        raise UrlPatternsNotFoundException("URLs file do not contains an url_patterns.")
 
     urls = []
     for url_list in url_patterns:
