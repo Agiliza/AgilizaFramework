@@ -226,7 +226,9 @@ class ConfigRunnerTest(unittest.TestCase):
             ConfigRunner(self.config_module)
 
     def test_config_must_load_a_class_level0(self):
-        self.config_module.middleware_level0.append(CompleteMiddlewareLevel0Mock)
+        self.config_module.middleware_level0.append(
+            CompleteMiddlewareLevel0Mock
+        )
 
         config = ConfigRunner(self.config_module)
 
@@ -234,6 +236,35 @@ class ConfigRunnerTest(unittest.TestCase):
             config.middleware_level0, (CompleteMiddlewareLevel0Mock(),),
             "ConfigRunner does not load middleware_level0"
         )
+
+    def test_config_must_load_an_instance_level0(self):
+        self.config_module.middleware_level0.append(
+            CompleteMiddlewareLevel0Mock()
+        )
+
+        config = ConfigRunner(self.config_module)
+
+        self.assertEqual(
+            config.middleware_level0, (CompleteMiddlewareLevel0Mock(),),
+            "ConfigRunner does not load middleware_level0"
+        )
+
+    def test_config_must_not_load_an_not_callable_middleware(self):
+        test_module = types.ModuleType('test_module')
+        test_module.NotCallableMiddleware = 'fake'
+
+        sys.modules.setdefault('test_module', test_module)
+
+        self.config_module.middleware_level0.append(
+            'test_module.NotCallableMiddleware'
+        )
+
+        with self.assertRaises(InvalidMiddlewareException,
+            msg="Middleware not callable"):
+
+            ConfigRunner(self.config_module)
+
+        sys.modules.pop('test_module')
 
 
     def test_config_must_raise_invalid_middleware_exception_level1(self):

@@ -109,7 +109,7 @@ class ConfigRunner(object):
                 except (ImportError, AttributeError) as error:
                     raise InvalidMiddlewareException(error)
                 except TypeError as error: # It is not callable
-                    raise ControllerNotFoundException(error)
+                    raise InvalidMiddlewareException(error)
             elif callable(middleware_name):
                 middleware = middleware_name()
             else:
