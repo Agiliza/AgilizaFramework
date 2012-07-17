@@ -25,7 +25,9 @@ from agiliza import http
 from agiliza.core.config import ConfigRunner
 from agiliza.core.handlers import Handler
 from agiliza.core.handlers.exceptions import *
+from agiliza.urls import url, include
 from tests.mocks.config import *
+from tests.mocks.controllers import *
 from tests.mocks.request import *
 
 
@@ -65,13 +67,34 @@ class HandlerTest(unittest.TestCase):
 
             Handler()
 
-    def test_bad_request_______________________(self):
+    def test_must_raise_http_404_without_url_patterns(self):
         handler = Handler(self.config_module)
 
+        request = HttpRequestMock()
+        request.method = 'GET'
+
         with self.assertRaises(http.Http404,
+            msg="Must be raise a Http404"):
+
+            handler.dispatch(request)
+
+    def test_must_raise_http_405_using_controller_without_get_method(self):
+        self.config_module.urls = UrlModuleMock(
+            (
+                url('/exp1', 'tests.mocks.controllers.PutControllerMock'),
+            )
+        )
+
+        handler = Handler(self.config_module)
+
+        request = HttpRequestMock()
+        request.method = 'GET'
+        request.path_info = '/exp1'
+
+        with self.assertRaises(http.Http405,
             msg="Must be raise a InvalidConfigModuleException"):
 
-            handler.dispatch(HttpRequestMock())
+            handler.dispatch(request)
 
 
 

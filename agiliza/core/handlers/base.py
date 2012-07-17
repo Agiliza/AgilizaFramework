@@ -59,6 +59,7 @@ class Handler(object):
                 params = results.groupdict()
                 url_regex, url_controller, \
                     url_context_processors, url_name, url_name = url
+                found = True
                 break
 
         if found is False:
@@ -69,11 +70,11 @@ class Handler(object):
         #Execute controller with request + params + config
         #"""
         response = url_controller.dispatch(
-            request = request,
-            params = params,
-            settings = self.config.settings,
-            session = request.session, #TODO
-            cookies = request.cookies, #TODO
+            request=request,
+            params=params,
+            settings=self.config.settings,
+            session=request.session, #TODO
+            cookies=request.cookies, #TODO
         )
 
         if not isinstance(response, http.HttpResponse):
