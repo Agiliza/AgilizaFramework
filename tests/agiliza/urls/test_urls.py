@@ -246,13 +246,19 @@ class StringOrFunctionTargetUrlTest(unittest.TestCase):
                 msg="URL do not add custom context processors to the second URL"
             )
             
-    def test_create_url_method(self):
+    def test_create_url_method_without_expression_finish(self):
         self.assertEqual(
             create_url("^url/"),
             "^url/$",
             msg="CreateUrl with one word must starts with '^' and finish with \
                 '$'")
-        
+
+    def test_create_url_method_with_expresion_finish(self):
+        self.assertEqual(
+            create_url("^url/$"),
+            "^url/$",
+            msg="CreateUrl with one word must starts with '^' and finish with \
+                '$'")        
 
 class IncludeTargetUrlTest(unittest.TestCase):
 
