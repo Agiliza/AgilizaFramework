@@ -28,7 +28,8 @@ from agiliza.core.config import ConfigRunner
 class Handler(object):
     def __init__(self):
         self.config = ConfigRunner()
-        self.Render = self.config.template_render
+        Render = self.config.template_render
+        self.render = Render(self.config.templates).render
 
     def dispatch(self, request):
         """Returns an Response object for the given Request."""
@@ -96,7 +97,7 @@ class Handler(object):
                     template_name = url_name + "." + accept_subtype
 
                 template_path = self.config.templates + template_name
-                print(template_path)
+
                 if os.path.isfile(template_path):
                     any_accepted = True
                     break
@@ -122,14 +123,9 @@ class Handler(object):
             #Render the template with response + request + contexts_info
             #"""
             context_data.update(response_data)
-            render = self.Render(
-                template = template_path,
-                context_data = context_data,
-                template_path=self.config.templates,
-            )
 
             response = http.HttpResponseOk(
-                content = render.render(),
+                content = self.render(template_name, context_data),
                 content_type = accept[0]
             )
 
