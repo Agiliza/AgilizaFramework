@@ -15,23 +15,5 @@ You should have received a copy of the GNU General Public License
 along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 
-Copyright (c) 2012 Alvaro Hurtado <alvarohurtado84@gmail.com>
+Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-
-import html.entities, re
- 
-def slugify(text, separator="-"):
-    ret = ""
-    for c in text.lower():
-        try:
-            ret += html.entities.codepoint2name[ord(c)]
-        except:
-            ret += c
-     
-    ret = re.sub("([a-zA-Z])(uml|acute|grave|circ|tilde|cedil)", r"\1", ret)
-    ret = ret.strip()
-    ret = re.sub(" ", "_", ret)
-    ret = re.sub("\W", "", ret)
-    ret = re.sub("[ _]+", separator, ret)
-     
-    return ret.strip()

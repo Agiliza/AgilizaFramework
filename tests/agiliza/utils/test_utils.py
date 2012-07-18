@@ -17,21 +17,32 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Alvaro Hurtado <alvarohurtado84@gmail.com>
 """
+import unittest
+import sys
 
-import html.entities, re
- 
-def slugify(text, separator="-"):
-    ret = ""
-    for c in text.lower():
-        try:
-            ret += html.entities.codepoint2name[ord(c)]
-        except:
-            ret += c
-     
-    ret = re.sub("([a-zA-Z])(uml|acute|grave|circ|tilde|cedil)", r"\1", ret)
-    ret = ret.strip()
-    ret = re.sub(" ", "_", ret)
-    ret = re.sub("\W", "", ret)
-    ret = re.sub("[ _]+", separator, ret)
-     
-    return ret.strip()
+from agiliza.utils import slugify
+
+
+class SlugifyTest(unittest.TestCase):
+
+    def test_simple_slug(self):
+        slug = slugify("Á b c y ótras")
+
+        self.assertEqual(
+            slug,
+            "a-b-c-y-otras",
+            msg="Slugify must create a slug without spaces, tildes..."
+        )
+        
+    def test_slug_with_symbols(self):
+        slug = slugify("aaa ?? aaa")
+        
+        self.assertEqual(
+            slug,
+            "aaa-aaa",
+            msg="Slugify must remove symbols"
+        )
+
+
+if __name__ == '__main__':
+    unittest.main()
