@@ -65,14 +65,24 @@ class Handler(object):
         cookies = SimpleCookie()
         url_controller.cookies = cookies
 
-        response = url_controller.dispatch(
-            request=request,
-            params=params
-        )
+        #
+        # Execute level-1 Middlewares IN
+        #
+        for middleware in self.config.middleware_level1:
+            middleware.process_controller(url_controller, request, params)
+
+        response = url_controller.dispatch(request, params)
+
+        #
+        # Execute level-1 Middlewares OUT
+        #
+        for middleware in self.config.middleware_level1:
+            middleware.process_controller_response(
+                url_controller, request, response
+            )
 
         if not isinstance(response, http.response.HttpResponse):
             response_data = response
-
             #
             # Search apropiate template
             # It is: url_name + [_ + url_layout] + . + accept_subtype

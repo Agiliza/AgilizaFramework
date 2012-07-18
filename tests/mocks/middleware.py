@@ -41,18 +41,16 @@ class ProcessResponseMiddlewareLevel0Mock(Singleton):
 
 
 class CompleteMiddlewareLevel1Mock(Singleton):
-    def process_controller(self, request, controllerfunc, controllerargs,
-        controllerkwargs):
+    def process_controller(self, controllerfunc, request, params):
         pass
 
-    def process_render(self, request, response, render):
+    def process_controller_response(self, controllerfunc, request, response):
         pass
 
 class ProcessControllerMiddlewareLevel1Mock(Singleton):
-    def process_controller(self, request, controllerfunc, controllerargs,
-        controllerkwargs):
+    def process_controller(self, controllerfunc, request, params):
         pass
 
 class ProcessRenderMiddlewareLevel1Mock(Singleton):
-    def process_render(self, request, response, render):
+    def process_controller_response(self, controllerfunc, request, response):
         pass

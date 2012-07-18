@@ -75,7 +75,7 @@ class ConfigRunner(Singleton):
         try:
             self.middleware_level1 = self._get_middleware_list(
                 config_module.middleware_level1,
-                ('process_controller', 'process_render'),
+                ('process_controller', 'process_controller_response'),
             )
         except AttributeError:
             self.middleware_level1 = ()
