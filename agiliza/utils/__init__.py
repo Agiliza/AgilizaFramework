@@ -17,3 +17,5 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Álvaro Hurtado <alvarohurtado84@gmail.com>
 """
+
+from slugify import slugify
