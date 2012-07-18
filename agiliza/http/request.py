@@ -109,13 +109,10 @@ class HttpRequest(object):
         self.accept = parse_accept_header(accept_hdr)
         self._stream = self.meta['wsgi.input']
 
-        environ['QUERY_STRING'] = ''
-        post = cgi.FieldStorage(
-            fp=environ['wsgi.input'],
-            environ=environ['wsgi.input'],
-            keep_blank_values=True
-        )
-
+        if 'wsgi.post_form' in environ:
+            self.post = self.meta['wsgi.post_form']
+        else:
+            self.post = {}
 
         self.cookies = SimpleCookie()
         # Cached values
