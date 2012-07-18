@@ -110,6 +110,9 @@ class HttpResponse(metaclass=abc.ABCMeta):
         # Cookies
         self.cookies = SimpleCookie()
 
+    def set_cookies(self, cookies):
+        self.cookies.load(cookies.output(header=''))
+
     @property
     def status(self):
         return '%s %s' % (self.status_code, self.status_text)
@@ -117,8 +120,15 @@ class HttpResponse(metaclass=abc.ABCMeta):
     @property
     def headers(self):
         response_headers = [
-            (key, value) for key, value in self._headers.values()
+            (key, value)
+            for key, value in self._headers.values()
         ]
+
+        response_header += [
+            morsel.output()
+            for morsel in self.cookies.values()
+        ]
+
         return response_headers
 
     @property

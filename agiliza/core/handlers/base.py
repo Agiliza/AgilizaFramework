@@ -126,7 +126,7 @@ class Handler(object):
                 content_type = accept[0]
             )
 
-        response.cookies = cookies
+        response.set_cookies(cookies)
 
         #
         # Execute level-0 Middlewares OUT
