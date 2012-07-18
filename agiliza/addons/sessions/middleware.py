@@ -19,17 +19,20 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 from http.cookies import SimpleCookie
 
+from agiliza.addons.sessions.base import Session
 from agiliza.addons.sessions.exceptions import InvalidSessionSettingsException
 from agiliza.config import settings
+from agiliza.core.utils.decorators import cached_property
 
 
 class SessionMiddleware(object):
-    def __init__(self):
-        sesion_settings = settings.get('sessions')
+    @cached_property
+    def expires(self):
+        session_settings = settings.get('sessions')
         if session_settings is not None:
             # Getting the expires function
             expires_func = None
-            expires = sesion_settings.get('expires', '')
+            expires = session_settings.get('expires', '')
             if expires:
                 if isinstance(expires, str):
                     try:
@@ -44,14 +47,57 @@ class SessionMiddleware(object):
                         "'expires' setting is not callable"
                     )
 
-            self.expires = expires_func or expires
-            self.path = sesion_settings.get('path', '') or ''
-            self.comment = sesion_settings.get('comment', '') or ''
-            self.domain = sesion_settings.get('domain', '') or ''
-            self.max_age = sesion_settings.get('max_age', '') or ''
-            self.secure = sesion_settings.get('secure', '') or ''
-            self.version = sesion_settings.get('version', '') or ''
-            self.httponly = sesion_settings.get('httponly', '') or ''
+            return expires_func or expires
+        return ''
+    
+    @cached_property
+    def path(self):
+        session_settings = settings.get('sessions')
+        if session_settings is not None:
+            return session_settings.get('path', '') or ''
+        return ''
+    
+    @cached_property
+    def comment(self):
+        session_settings = settings.get('sessions')
+        if session_settings is not None:
+            return session_settings.get('comment', '') or ''
+        return ''
+    
+    @cached_property
+    def domain(self):
+        session_settings = settings.get('sessions')
+        if session_settings is not None:
+            return session_settings.get('domain', '') or ''
+        return ''
+    
+    @cached_property
+    def max_age(self):
+        session_settings = settings.get('sessions')
+        if session_settings is not None:
+            return session_settings.get('max_age', '') or ''
+        return ''
+    
+    @cached_property
+    def secure(self):
+        session_settings = settings.get('sessions')
+        if session_settings is not None:
+            return session_settings.get('secure', '') or ''
+        return ''
+            
+    @cached_property
+    def version(self):
+        session_settings = settings.get('sessions')
+        if session_settings is not None:
+            return session_settings.get('version', '') or ''
+        return ''
+    
+    @cached_property
+    def httponly(self):
+        session_settings = settings.get('sessions')
+        if session_settings is not None:
+            return session_settings.get('httponly', '') or ''
+        return ''
 
     def process_request(self, request):
         # Retrive the session cookie
@@ -60,19 +106,22 @@ class SessionMiddleware(object):
             session_cookie = SimpleCookie() # Just 'sid' cookie
             session_cookie['sid'] = request.cookies['sid'].value
             session_cookie['sid'].update(request.cookies['sid'])
+            session = Session(request.cookies, request.cookies['sid'].value)
         else: # New session
             session_cookie = SimpleCookie()
             session_cookie['sid'] = ''
-            session_cookie['sid']['expires'] = self.expires()
+            if self.expires:
+                session_cookie['sid']['expires'] = self.expires()
             session_cookie['sid']['path'] = self.path
             session_cookie['sid']['comment'] = self.comment
             session_cookie['sid']['domain'] = self.domain
-            session_cookie['sid']['max_age'] = self.max_age
+            session_cookie['sid']['max-age'] = self.max_age
             session_cookie['sid']['secure'] = self.secure
             session_cookie['sid']['version'] = self.version
             session_cookie['sid']['httponly'] = self.httponly
-
-        session = Session(session_cookie)
+            session = Session(session_cookie)
+        
+        #session = Session(sid)
         # Link the session to request
         request.session = session
 
@@ -83,6 +132,7 @@ class SessionMiddleware(object):
     def process_controller_response(self, controllerfunc, request, response):
         # Unlink the session from controller
         del controllerfunc.session
+
 
     def process_response(self, request, response):
         # Retrieve the session from request

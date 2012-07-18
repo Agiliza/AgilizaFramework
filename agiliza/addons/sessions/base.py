@@ -19,22 +19,22 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 import shelve
 import uuid
+import os
+
+from http.cookies import SimpleCookie
 
 from agiliza.addons.sessions.exceptions import InvalidSessionSettingsException
 from agiliza.config import settings
 
 
-class Session(dict):
-    def __init__(self, cookie):
-        if not cookie['sid']:
-            cookie['sid'] = self.get_identifier()
-
-        sid = cookie['sid'].value
+class Session(object):
+    def __init__(self, cookie, sid=None):
+        if not sid:
+            sid = self.get_identifier()
 
         try:
-            session_dir = settings['session']['directory']
-            session_file_prefix = settings['session'].get('file_prefix', 'sess_')
-            session_writeback = settings['session'].get('writeback', True)
+            session_dir = settings['sessions']['directory']
+            session_writeback = settings['sessions'].get('writeback', True)
         except AttributeError as error:
             raise InvalidSessionSettingsException(
                 "%s: 'directory' for session is not defined" % error
@@ -42,27 +42,39 @@ class Session(dict):
 
         if not os.path.exists(session_dir):
             try:
-                os.mkdir(session_dir, 02770)
+                os.mkdir(session_dir, 0o2770)
             except OSError as error:
                 raise InvalidSessionSettingsException(
                     "%s: Error trying to create the session directory" % error
                 )
 
-        session_file = os.path.join(session_dir, session_file_prefix + sid)
+        session_file = os.path.join(session_dir, sid)
         self._data = shelve.open(session_file, writeback=session_writeback)
-        if not 'cookie' in self._data:
-            self._data['cookie'] = cookie
 
-        os.chmod(session_file, 0660)
+        self._data.update({
+            'sid': sid,
+            'cookie': { k:v for k,v in cookie['sid'].items() }
+        })
+        
+
+        os.chmod(session_file+".db", 0o660)
 
     def __getitem__(self, key):
         return self._data[key]
 
     def __setitem__(self, key, value):
         self._data[key] = value
-
+        
     def get_identifier(self):
         return str(uuid.uuid1())
+        
+    def get_cookie(self):
+        sid = self._data['sid']
+        cookie_data = self._data['cookie']
+        cookie = SimpleCookie()
+        cookie['sid'] = sid
+        cookie['sid'].update(cookie_data)
+        return cookie
 
     def save(self):
         self._data.close()
