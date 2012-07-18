@@ -40,7 +40,7 @@ class ConfigRunnerTest(unittest.TestCase):
         sys.modules.setdefault('my_config_module.urls', self.config_module.urls)
         os.environ['AGILIZA_CONFIG'] = 'my_config_module'
 
-        ConfigRunner._singleton_instance = None
+        ConfigRunner.invalidateInstance()
 
     def tearDown(self):
         try:
@@ -56,6 +56,13 @@ class ConfigRunnerTest(unittest.TestCase):
 
     def test_config_must_not_load_a_config_module(self):
         os.environ['AGILIZA_CONFIG'] = 'invalid_config_module'
+        with self.assertRaises(ConfigModuleImportException,
+            msg="Must be raise a ConfigModuleImportException"):
+
+            ConfigRunner()
+
+    def test_config_must_not_load_without_environ_variable(self):
+        del os.environ['AGILIZA_CONFIG']
         with self.assertRaises(ConfigModuleImportException,
             msg="Must be raise a ConfigModuleImportException"):
 

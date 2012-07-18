@@ -17,27 +17,3 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-class LazySettingsImport(object):
-    def __init__(self):
-        self._settings = None
-
-    def _get_settings(self):
-        from agiliza.core.config import ConfigRunner
-        config = ConfigRunner()
-        self._settings = config.settings
-
-    def __getitem__(self, key):
-        if self._settings is None:
-            self._get_settings()
-        return self._settings[key]
-
-    def __setitem__(self, key, value):
-        if self._settings is None:
-            self._get_settings()
-        self._settings[key] = value
-
-settings = LazySettingsImport()
-
-
-
-

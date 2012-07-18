@@ -76,6 +76,7 @@ import cgi
 import urllib
 from http.cookies import SimpleCookie
 
+from agiliza.core.utils.decorators import cached_property
 from agiliza.http.exceptions import HttpNegativeContentLengthException
 from agiliza.http.parser import parse_accept_header
 
@@ -87,10 +88,14 @@ class HttpRequest(object):
     def __init__(self, environ):
         """Wrap a WSGI environ dictionary."""
         self.meta = environ.copy()
+        self.query_string = self.meta.get('QUERY_STRING', '')
+        # This must be done to avoid a bug in cgi.FieldStorage
+        self.meta.setdefault('QUERY_STRING', '')
+
         self.method = self.meta['REQUEST_METHOD'].upper()
+
         self.path_info = '/' + self.meta.get('PATH_INFO', '')\
             .lstrip('/')
-        self.query_string = self.meta.get('QUERY_STRING', '')
         self.script_name = self.meta.get('SCRIPT_NAME', '')
 
         content_type = self.meta.get('CONTENT_TYPE', '')
@@ -109,18 +114,7 @@ class HttpRequest(object):
         self.accept = parse_accept_header(accept_hdr)
         self._stream = self.meta['wsgi.input']
 
-        if 'wsgi.post_form' in environ:
-            self.post = self.meta['wsgi.post_form']
-        else:
-            self.post = {}
-
         self.cookies = SimpleCookie()
-        # Cached values
-        self._host = None
-        self._full_path = None
-        self._query = None
-        self._data = None
-        self._files = None
 
     def is_secure(self):
         return 'wsgi.url_scheme' in self.meta \
@@ -139,13 +133,11 @@ class HttpRequest(object):
         requested_with = self.meta.get('HTTP_X_REQUESTED_WITH', '')
         return requested_with.lower() == 'xmlhttprequest'
 
+    @cached_property
     def get_host(self):
-        if self._host:
-            return self._host
-
         if 'HTTP_HOST' in self.meta:
-            self._host = self.meta['HTTP_HOST']
-            return self._host
+            return self.meta['HTTP_HOST']
+
         host = self.meta['SERVER_NAME']
 
         if self.meta['wsgi.url_scheme'] == 'https':
@@ -155,13 +147,10 @@ class HttpRequest(object):
             if self.meta['SERVER_PORT'] != '80':
                host += ':' + self.meta['SERVER_PORT']
 
-        self._host = host
-        return self._host
+        return host
 
+    @cached_property
     def get_full_path(self):
-        if self._full_path:
-            return self._full_path
-
         from urllib.parse import quote
         url = self.meta['wsgi.url_scheme'] + '://'
         url += self.get_host()
@@ -170,45 +159,29 @@ class HttpRequest(object):
         if self.query_string:
             url += '?' + self.query_string
 
-        self._full_path = url
         return url
 
-    @property
+    @cached_property
     def query(self):
-        if self._query:
-            return self._query
+        return urllib.parse.parse_qs(self.query_string, keep_blank_values=True)
 
-        self._query = urllib.parse.parse_qs(
-            self.query_string,
-            keep_blank_values=True
-        )
-        return self._query
-
-    @property
+    @cached_property
     def data(self):
-        if self._data:
-            return self._data
-
-        self._data = cgi.FieldStorage(
+        return cgi.FieldStorage(
             fp=self._stream,
             environ=self.meta,
             keep_blank_values=True
         )
-        return self._data
 
-    @property
+    @cached_property
     def files(self):
-        if self._files:
-            return self._files
-
         data = self.data
-        self._files = {}
-        for key in data: # TODO diccionario de compresion?
-            value = data[key]
-            if value.file:
-                self._files[key] = value
 
-        return self._files
+        return {
+            key: value
+            for key, value in data.items()
+            if value.file
+        }
 
     def __str__(self):
         return 'HttpRequest <%s %s HTTP/%s>' % (

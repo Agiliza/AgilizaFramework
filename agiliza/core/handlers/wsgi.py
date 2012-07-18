@@ -17,6 +17,8 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
+import cgi
+
 from agiliza import http
 from agiliza.http.exceptions import HttpParserException, HttpResponseException
 from agiliza.core.handlers.base import Handler
@@ -45,17 +47,16 @@ class WSGIHandler(Handler):
         env.setdefault('QUERY_STRING', '')
         fs = cgi.FieldStorage(
             fp=input,
-            env=env,
+            environ=env,
             keep_blank_values=1
         )
-        new_input = InputProcessed('')
+        new_input = InputProcessed()
         post_form = (new_input, input, fs)
         env['wsgi.post_form'] = post_form
         env['wsgi.input'] = new_input
         return fs
 
     def process_environ(self, env):
-        env['wsgi.post_form'] = {}
 
         if self.is_post_request(env):
             self.get_post_form(env)

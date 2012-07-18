@@ -39,7 +39,10 @@ class ConfigRunner(Singleton):
             config_module_name = os.environ['AGILIZA_CONFIG']
             config_module = importlib.import_module(config_module_name)
         except KeyError as error:
-            raise ConfigModuleImportException(error)
+            raise ConfigModuleImportException(
+                "Environment has not '%s' variable" %
+                    error.args[0].decode('utf-8')
+            )
         except ImportError as error:
             raise ConfigModuleImportException(error)
 

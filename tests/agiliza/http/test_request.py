@@ -128,7 +128,7 @@ class HttpRequestTest(unittest.TestCase):
         request = HttpRequest(environ)
 
         self.assertEqual(
-            request.get_host(),
+            request.get_host,
             'agiliza.com',
             "Host name is wrong"
         )
@@ -137,8 +137,8 @@ class HttpRequestTest(unittest.TestCase):
         environ = self.get_wsgi_environ()
         environ['HTTP_HOST'] = 'agiliza.com'
         request = HttpRequest(environ)
-        host = request.get_host()
-        cached_host = request.get_host()
+        host = request.get_host
+        cached_host = request.get_host
 
         self.assertEqual(
             cached_host,
@@ -155,7 +155,7 @@ class HttpRequestTest(unittest.TestCase):
         request = HttpRequest(environ)
 
         self.assertEqual(
-            request.get_host(),
+            request.get_host,
             'agiliza.com',
             "Host name is wrong"
         )
@@ -169,7 +169,7 @@ class HttpRequestTest(unittest.TestCase):
         request = HttpRequest(environ)
 
         self.assertEqual(
-            request.get_host(),
+            request.get_host,
             'agiliza.com:8080',
             "Host name is wrong"
         )
@@ -183,7 +183,7 @@ class HttpRequestTest(unittest.TestCase):
         request = HttpRequest(environ)
 
         self.assertEqual(
-            request.get_host(),
+            request.get_host,
             'agiliza.com',
             "Host name is wrong"
         )
@@ -197,7 +197,7 @@ class HttpRequestTest(unittest.TestCase):
         request = HttpRequest(environ)
 
         self.assertEqual(
-            request.get_host(),
+            request.get_host,
             'agiliza.com:9999',
             "Host name is wrong"
         )

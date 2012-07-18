@@ -18,15 +18,27 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 class SingletonMetaClass(type):
-    def __init__(cls,name,bases,dic):
+    def __init__(cls, name, bases, dic):
         super(SingletonMetaClass, cls).__init__(name, bases, dic)
         cls._singleton_instance = None
 
-    def __call__(cls,*args,**kw):
+    def __call__(cls, *args, **kw):
         if cls._singleton_instance is None:
-            cls._singleton_instance = \
-                super(SingletonMetaClass, cls).__call__(*args, **kw)
+            try:
+                cls._singleton_instance = \
+                    super(SingletonMetaClass, cls).__call__(*args, **kw)
+            except:
+                cls._singleton_instance = None
+                raise
         return cls._singleton_instance
 
 class Singleton(metaclass=SingletonMetaClass):
-    pass
+    @classmethod
+    def invalidateInstance(cls):
+        cls._singleton_instance = None
+
+    @classmethod
+    def getInstance(cls):
+        if cls._singleton_instance is None:
+            cls()
+        return cls._singleton_instance

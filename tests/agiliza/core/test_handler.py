@@ -41,7 +41,7 @@ class HandlerTest(unittest.TestCase):
         sys.modules.setdefault('my_config_module.urls', self.config_module.urls)
         os.environ['AGILIZA_CONFIG'] = 'my_config_module'
 
-        ConfigRunner._singleton_instance = None
+        ConfigRunner.invalidateInstance()
 
     def tearDown(self):
         del os.environ['AGILIZA_CONFIG']
