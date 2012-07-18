@@ -1,0 +1,14 @@
+IDEAS
+=====
+
+Parseo de HttpRequest usando Mixin:
+	http://werkzeug.pocoo.org/docs/wrappers/
+
+Registro de modelos:
+	https://github.com/stanislavfeldman/kiss.py
+
+
+PARA REPENSAR
+=============
+- Problema de los controladores a la hora de crear objetos (put ó post) que no
+  reciben parámetro (action del formulario con Javascript?)
