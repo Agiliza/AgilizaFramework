@@ -36,6 +36,11 @@ class LazySettingsImport(object):
             self._get_settings()
         self._settings[key] = value
 
+    def __getattr__(self, name):
+        if self._settings is None:
+            self._get_settings()
+        return getattr(self._settings, name)
+
 settings = LazySettingsImport()
 
 
