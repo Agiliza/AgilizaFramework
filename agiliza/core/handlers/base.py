@@ -36,17 +36,15 @@ class Handler(object):
         params = {}
         response = None
 
-
-        #"""
-        #Execute level-0 Middlewares IN
-        #"""
+        #
+        # Execute level-0 Middlewares IN
+        #
         for middleware in self.config.middleware_level0:
             middleware.process_request(request)
 
-
-        #"""
-        #Select correct URL
-        #"""
+        #
+        # Select correct URL
+        #
         found = False
         for url in self.config.urls:
             results = url[0].match(request.path_info)
@@ -60,12 +58,9 @@ class Handler(object):
         if found is False:
             raise http.HttpResponseNotFound()
 
-
-        cookies = request.cookies
-
-        #"""
-        #Execute controller with request + params + config
-        #"""
+        #
+        # Execute controller
+        #
         response = url_controller.dispatch(
             request=request,
             params=params
@@ -74,10 +69,10 @@ class Handler(object):
         if not isinstance(response, http.response.HttpResponse):
             response_data = response
 
-            #"""
-            #Search apropiate template
-            #It is: url_name + [_ + url_layout] + . + accept_subtype
-            #"""
+            #
+            # Search apropiate template
+            # It is: url_name + [_ + url_layout] + . + accept_subtype
+            #
             accepts = sorted(
                 [
                     [key, request.accept[key]]
@@ -102,14 +97,12 @@ class Handler(object):
                     any_accepted = True
                     break
 
-
             if not any_accepted:
                 raise http.HttpResponseUnsupportedMediaType()
 
-
-            #"""
-            #Execute the necessary context_processors
-            #"""
+            #
+            # Execute the necessary context_processors
+            #
             context_data = {}
             for context_processor in url_context_processors:
                 context_data.update(
@@ -119,9 +112,9 @@ class Handler(object):
                     )
                 )
 
-            #"""
-            #Render the template with response + request + contexts_info
-            #"""
+            #
+            # Render the template with response + request + contexts_info
+            #
             context_data.update(response_data)
 
             response = http.HttpResponseOk(
@@ -129,15 +122,11 @@ class Handler(object):
                 content_type = accept[0]
             )
 
-
-        response.cookies = request.cookies
-
-        #"""
-        #Execute level-0 Middlewares OUT
-        #"""
+        #
+        # Execute level-0 Middlewares OUT
+        #
         for middleware in self.config.middleware_level0:
             middleware.process_response(request, response)
-
 
         return response
 

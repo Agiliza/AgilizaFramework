@@ -19,7 +19,7 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 from agiliza import http
 from agiliza.http.exceptions import HttpParserException, HttpResponseException
-from agiliza.core.handlers import Handler
+from agiliza.core.handlers.base import Handler
 
 
 class WSGIHandler(Handler):
@@ -32,8 +32,8 @@ class WSGIHandler(Handler):
             response = http.HttpResponseBadRequest()
         except HttpResponseException as exception:
             response = exception
-        except:
-            response = http.HttpResponseInternalServerError()
+        #except:
+        #    response = http.HttpResponseInternalServerError()
 
         start_response(response.status, response.headers)
         return response.content

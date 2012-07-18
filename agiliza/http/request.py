@@ -206,4 +206,5 @@ class HttpRequest(object):
 
     def __str__(self):
         return 'HttpRequest <%s %s HTTP/%s>' % (
-            self.method, self.path_info, self.VERSION)
+            self.method, self.path_info, self.VERSION
+        )

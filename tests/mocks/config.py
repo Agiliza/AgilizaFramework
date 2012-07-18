@@ -22,16 +22,24 @@ import types
 from tests.mocks.utils import NiceDict
 
 
-class ConfigModuleMock(NiceDict):
+class ConfigModuleMock(types.ModuleType):
     """Simulate the module ``site/config`` with initial configuration."""
-    pass
+    def __init__(self, name='config_module', *args, **kwargs):
+        super(types.ModuleType, self).__init__(name, *args, **kwargs)
+        self.installed_apps = list()
+        self.middleware_level0 = list()
+        self.middleware_level1 = list()
+        self.templates = { 'directory': '/' }
+        self.urls = UrlModuleMock('config_module.urls')
 
 class ApplicationModuleMock(types.ModuleType):
     """Simulate the module ``application/config`` with initial configuration."""
-    def __init__(self, module_name='ApplicationTest'):
-        super(types.ModuleType, self).__init__(module_name)
-        self.config = ConfigModuleMock()
+    def __init__(self, name='app_test', *args, **kwargs):
+        super(types.ModuleType, self).__init__(name, *args, **kwargs)
+        self.config = ConfigModuleMock('app_test.config')
 
-class UrlModuleMock(NiceDict):
-    def __init__(self, url_patterns):
-        self['url_patterns'] = url_patterns
+class UrlModuleMock(types.ModuleType):
+    """Simulate the module ``config/urls`` with initial configuration."""
+    def __init__(self, name='config.urls', *args, **kwargs):
+        super(UrlModuleMock, self).__init__(name, *args, **kwargs)
+        self.url_patterns = tuple()

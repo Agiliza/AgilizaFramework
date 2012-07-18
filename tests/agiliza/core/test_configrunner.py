@@ -34,21 +34,17 @@ from tests.mocks.middleware import *
 class ConfigRunnerTest(unittest.TestCase):
 
     def setUp(self):
-        self.config_module = ConfigModuleMock({
-            'installed_apps': list(),
-            'middleware_level0': list(),
-            'middleware_level1': list(),
-            'urls': UrlModuleMock(tuple()),
-            'templates': { 'directory': '/' },
-        })
+        self.config_module = ConfigModuleMock()
 
         sys.modules.setdefault('my_config_module', self.config_module)
+        sys.modules.setdefault('my_config_module.urls', self.config_module.urls)
         os.environ['AGILIZA_CONFIG'] = 'my_config_module'
 
         ConfigRunner._singleton_instance = None
 
     def tearDown(self):
         sys.modules.pop('my_config_module')
+        sys.modules.pop('my_config_module.urls')
 
 
     def test_config_must_load_a_config_module(self):
@@ -158,7 +154,7 @@ class ConfigRunnerTest(unittest.TestCase):
         )
 
     def test_config_must_load_project_settings(self):
-        self.config_module['settings'] = { 'agiliza': 'rocks' }
+        self.config_module.settings = { 'agiliza': 'rocks' }
         config = ConfigRunner()
 
         self.assertEqual(
@@ -168,7 +164,7 @@ class ConfigRunnerTest(unittest.TestCase):
 
     def test_config_must_load_app_settings(self):
         app = ApplicationModuleMock()
-        app.config['settings'] = { 'app': 'rocks' }
+        app.config.settings = { 'app': 'rocks' }
         self.config_module.installed_apps.append(app)
 
         config = ConfigRunner()
@@ -181,7 +177,7 @@ class ConfigRunnerTest(unittest.TestCase):
     def test_config_must_load_multiple_app_settings(self):
         app1 = ApplicationModuleMock()
         app2 = ApplicationModuleMock()
-        app2.config['settings'] = { 'app': 'rocks' }
+        app2.config.settings = { 'app': 'rocks' }
 
         self.config_module.installed_apps.append(app1)
         self.config_module.installed_apps.append(app2)
@@ -195,7 +191,7 @@ class ConfigRunnerTest(unittest.TestCase):
 
     def test_config_must_load_only_project_settings(self):
         app = ApplicationModuleMock()
-        self.config_module['settings'] = { 'agiliza': 'rocks' }
+        self.config_module.settings = { 'agiliza': 'rocks' }
         self.config_module.installed_apps.append(app)
 
         config = ConfigRunner()
@@ -207,8 +203,8 @@ class ConfigRunnerTest(unittest.TestCase):
 
     def test_config_must_load_project_and_app_settings(self):
         app = ApplicationModuleMock()
-        app.config['settings'] = { 'app': 'rocks' }
-        self.config_module['settings'] = { 'agiliza': 'rocks' }
+        app.config.settings = { 'app': 'rocks' }
+        self.config_module.settings = { 'agiliza': 'rocks' }
         self.config_module.installed_apps.append(app)
 
         config = ConfigRunner()
@@ -353,7 +349,7 @@ class ConfigRunnerTest(unittest.TestCase):
         )
 
     def test_config_must_load_url_patterns(self):
-        self.config_module.urls = UrlModuleMock(
+        self.config_module.urls.url_patterns = (
             (
                 url(
                     '/exp1',
@@ -388,7 +384,7 @@ class ConfigRunnerTest(unittest.TestCase):
         )
 
     def test_config_must_raise_on_bad_re(self):
-        self.config_module.urls = UrlModuleMock(
+        self.config_module.urls.url_patterns = (
             (
                 url(
                     '/exp[\w-\b]',
@@ -404,7 +400,7 @@ class ConfigRunnerTest(unittest.TestCase):
             ConfigRunner()
 
     def test_config_must_raise_on_bad_import(self):
-        self.config_module.urls = UrlModuleMock(
+        self.config_module.urls.url_patterns = (
             (
                 url(
                     '/exp1',
@@ -425,7 +421,7 @@ class ConfigRunnerTest(unittest.TestCase):
 
         sys.modules.setdefault('test_module', test_module)
 
-        self.config_module.urls = UrlModuleMock(
+        self.config_module.urls.url_patterns = (
             (
                 url(
                     '/exp1',
@@ -443,7 +439,7 @@ class ConfigRunnerTest(unittest.TestCase):
         sys.modules.pop('test_module')
 
     def test_config_must_raise_on_bad_context_processor(self):
-        self.config_module.urls = UrlModuleMock(
+        self.config_module.urls.url_patterns = (
             (
                 url(
                     '/exp1',

@@ -23,7 +23,6 @@ import re
 import os
 from functools import reduce
 
-from agiliza.config.urls import include
 from agiliza.core.config.exceptions import (InvalidApplicationException,
     BadApplicationConfigurationException, InvalidMiddlewareException,
     BadMiddlewareException, ControllerNotFoundException,
@@ -44,28 +43,51 @@ class ConfigRunner(Singleton):
         except ImportError as error:
             raise ConfigModuleImportException(error)
 
+        # Load templates info
         self.templates, self.template_render = self._get_templates_info(
             config_module
         )
 
-        self.installed_apps = self._get_installed_apps(
-            config_module.installed_apps
-        )
+        # Load installed apps
+        try:
+            self.installed_apps = self._get_installed_apps(
+                config_module.installed_apps
+            )
+        except AttributeError:
+            self.installed_apps = ()
 
+        # Load settings
         self.settings = self._get_settings(config_module)
 
+        # Load middleware level0
+        try:
+            self.middleware_level0 = self._get_middleware_list(
+                config_module.middleware_level0,
+                ('process_request', 'process_response'),
+            )
+        except AttributeError:
+            self.middleware_level0 = ()
 
-        self.middleware_level0 = self._get_middleware_list(
-            config_module.middleware_level0,
-            ('process_request', 'process_response'),
-        )
+        # Load middleware level1
+        try:
+            self.middleware_level1 = self._get_middleware_list(
+                config_module.middleware_level1,
+                ('process_controller', 'process_render'),
+            )
+        except AttributeError:
+            self.middleware_level1 = ()
 
-        self.middleware_level1 = self._get_middleware_list(
-            config_module.middleware_level1,
-            ('process_controller', 'process_render'),
-        )
-
-        self.urls = self._get_url_list(config_module.urls.url_patterns)
+        # Load urls
+        try:
+            urls_module_name = '%s.urls' % config_module_name
+            urls_module = importlib.import_module(urls_module_name)
+            self.urls = self._get_url_list(urls_module.url_patterns)
+        except AttributeError:
+            raise ConfigModuleImportException(
+                "'config' module has not 'config.urls' submodule"
+            )
+        except ImportError as error:
+            raise ConfigModuleImportException(error)
 
 
     def _get_templates_info(self, config_module):
@@ -161,6 +183,8 @@ class ConfigRunner(Singleton):
         return tuple(middleware_list)
 
     def _get_url_list(self, url_patterns):
+        from agiliza.config.urls import include
+
         assert type(url_patterns) == list or type(url_patterns) == tuple,\
             "'url_pattern' must be a list or tuple"
 
