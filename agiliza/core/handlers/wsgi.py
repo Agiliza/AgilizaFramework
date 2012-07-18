@@ -28,7 +28,7 @@ class InputProcessed(object):
     readline = readlines = __iter__ = read
 
 class WSGIHandler(Handler):
-    def is_post_request(env):
+    def is_post_request(self, env):
         if env['REQUEST_METHOD'].upper() != 'POST':
             return False
 
