@@ -125,7 +125,7 @@ class HttpResponse(metaclass=abc.ABCMeta):
         ]
 
         response_headers += [
-            morsel.output()
+            ('Set-Cookie', morsel.output(header='').strip())
             for morsel in self._cookies.values()
         ]
 
