@@ -17,55 +17,52 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
-from hashlib import sha
-from http.cookies import BaseCookie
+import shelve
+import uuid
+
+from agiliza.addons.sessions.exceptions import InvalidSessionSettingsException
+from agiliza.config import settings
 
 
-class Session(object):
+class Session(dict):
+    def __init__(self, cookie):
+        if not cookie['sid']:
+            cookie['sid'] = self.get_identifier()
 
-    def __init__(self, cookies, expires=None, cookie_path=None):
-        assert isinstance(cookies, BaseCookie)
+        sid = cookie['sid'].value
 
-        self._cookies = cookies
+        try:
+            session_dir = settings['session']['directory']
+            session_file_prefix = settings['session'].get('file_prefix', 'sess_')
+            session_writeback = settings['session'].get('writeback', True)
+        except AttributeError as error:
+            raise InvalidSessionSettingsException(
+                "%s: 'directory' for session is not defined" % error
+            )
 
-        if self._cookie.get('sid'):
-            sid = self._cookie['sid'].value
-        else:
-            sid = sha.new(repr(time.time())).hexdigest()
-
-        # Clear session cookie from other cookies
-        self._cookie.clear()
-
-        self.cookie['sid'] = sid
-
-        if cookie_path:
-            self.cookie['sid']['path'] = cookie_path
-
-        session_dir = settings['session']['directory']
         if not os.path.exists(session_dir):
             try:
                 os.mkdir(session_dir, 02770)
-            # If the apache user can't create it create it manualy
-            except OSError, e:
-                errmsg =  """%s when trying to create the session directory. \
-Create it as '%s'""" % (e.strerror, os.path.abspath(session_dir))
-                raise OSError, errmsg
-        self.data = shelve.open(session_dir + '/sess_' + sid, writeback=True)
-        os.chmod(session_dir + '/sess_' + sid, 0660)
+            except OSError as error:
+                raise InvalidSessionSettingsException(
+                    "%s: Error trying to create the session directory" % error
+                )
 
-        # Initializes the expires data
-        if not self.data.get('cookie'):
-            self.data['cookie'] = {'expires':''}
+        session_file = os.path.join(session_dir, session_file_prefix + sid)
+        self._data = shelve.open(session_file, writeback=session_writeback)
+        if not 'cookie' in self._data:
+            self._data['cookie'] = cookie
 
-        self.set_expires(expires)
+        os.chmod(session_file, 0660)
 
-    def close(self):
-        self.data.close()
+    def __getitem__(self, key):
+        return self._data[key]
 
-    def set_expires(self, expires=None):
-        if expires == '':
-            self.data['cookie']['expires'] = ''
-        elif isinstance(expires, int):
-            self.data['cookie']['expires'] = expires
+    def __setitem__(self, key, value):
+        self._data[key] = value
 
-        self.cookie['sid']['expires'] = self.data['cookie']['expires']
+    def get_identifier(self):
+        return str(uuid.uuid1())
+
+    def save(self):
+        self._data.close()
