@@ -43,24 +43,72 @@ class ConfigRunnerTest(unittest.TestCase):
         ConfigRunner._singleton_instance = None
 
     def tearDown(self):
-        sys.modules.pop('my_config_module')
-        sys.modules.pop('my_config_module.urls')
+        try:
+            sys.modules.pop('my_config_module')
+        except KeyError:
+            pass
+
+        try:
+            sys.modules.pop('my_config_module.urls')
+        except KeyError:
+            pass
 
 
-    def test_config_must_load_a_config_module(self):
+    def test_config_must_not_load_a_config_module(self):
         os.environ['AGILIZA_CONFIG'] = 'invalid_config_module'
         with self.assertRaises(ConfigModuleImportException,
             msg="Must be raise a ConfigModuleImportException"):
 
             ConfigRunner()
 
-    def test_config_must_raise_exception_on_load_invalid_config_module(self):
+    def test_config_must_load_simplest_configuration(self):
+        del self.config_module.installed_apps
+        del self.config_module.settings
+        del self.config_module.middleware_level0
+        del self.config_module.middleware_level1
         config = ConfigRunner()
 
         self.assertEqual(
             config.installed_apps, (),
             "ConfigRunner does not load installed_apps"
         )
+
+    def test_config_must_raise_exception_without_url_patterns(self):
+        del self.config_module.urls.url_patterns
+
+        with self.assertRaises(ConfigModuleImportException,
+            msg="Must be raise a ConfigModuleImportException"):
+
+            ConfigRunner()
+
+    def test_config_must_raise_exception_without_urls_submodule(self):
+        sys.modules.pop('my_config_module.urls')
+
+        with self.assertRaises(ConfigModuleImportException,
+            msg="Must be raise a ConfigModuleImportException"):
+
+            ConfigRunner()
+
+    def test_config_must_not_load_an_invalid_render(self):
+        self.config_module.templates['render'] = 'invalid.Render'
+
+        with self.assertRaises(InvalidRenderException,
+            msg="Must be raise a InvalidRenderException"):
+
+            ConfigRunner()
+
+    def test_config_must_not_load_a_not_callable_render(self):
+        self.config_module.templates['render'] = 'notcallable.Render'
+        notcallable = types.ModuleType('notcallable')
+        notcallable.Render = 'A string is not callable'
+        sys.modules.setdefault('notcallable', notcallable)
+
+        with self.assertRaises(InvalidRenderException,
+            msg="Must be raise a InvalidRenderException"):
+
+            ConfigRunner()
+
+        sys.modules.pop('notcallable')
 
     def test_config_must_load_template_directory(self):
         self.config_module.templates['directory'] = '/'
@@ -92,6 +140,32 @@ class ConfigRunnerTest(unittest.TestCase):
         )
 
         sys.modules.pop('test_app')
+
+    def test_config_must_load_an_app_without_config(self):
+        app = ApplicationModuleMock('test_app')
+        del app.config
+
+        self.config_module.installed_apps.append(app)
+
+        config = ConfigRunner()
+
+        self.assertEqual(
+            config.installed_apps, (app,),
+            "ConfigRunner does not load installed_apps"
+        )
+
+    def test_config_must_load_an_app_without_settings(self):
+        app = ApplicationModuleMock('test_app')
+        del app.config.settings
+
+        self.config_module.installed_apps.append(app)
+
+        config = ConfigRunner()
+
+        self.assertEqual(
+            config.installed_apps, (app,),
+            "ConfigRunner does not load installed_apps"
+        )
 
     def test_config_must_load_a_module(self):
         app = ApplicationModuleMock()
@@ -127,15 +201,6 @@ class ConfigRunnerTest(unittest.TestCase):
             config.installed_apps, (),
             "ConfigRunner does not load a empty list"
         )
-
-    def test_must_raise_bad_application_configuration_exception(self):
-        self.config_module.installed_apps.append('sys')
-
-        with self.assertRaises(BadApplicationConfigurationException,
-            msg="Must be raise a BadApplicationConfigurationException"):
-            ConfigRunner()
-
-
 
     def test_config_must_raise_invalid_middleware_exception_level0(self):
         self.config_module.middleware_level0.append('invalid.middleware.test')

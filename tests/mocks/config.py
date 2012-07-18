@@ -29,6 +29,7 @@ class ConfigModuleMock(types.ModuleType):
         self.installed_apps = list()
         self.middleware_level0 = list()
         self.middleware_level1 = list()
+        self.settings = {}
         self.templates = { 'directory': '/' }
         self.urls = UrlModuleMock('config_module.urls')
 

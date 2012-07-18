@@ -59,3 +59,7 @@ class ConfigModuleImportException(ConfigRunnerException):
 class TemplatePathException(ConfigRunnerException):
     """This exception is launched by ``ConfigRunner`` when it check the template
     path."""
+
+class InvalidRenderException(ConfigRunnerException):
+    """This exception is launched by ``ConfigRunner`` when the render class is
+    not valid."""

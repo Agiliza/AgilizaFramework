@@ -27,7 +27,7 @@ from agiliza.core.config.exceptions import (InvalidApplicationException,
     BadApplicationConfigurationException, InvalidMiddlewareException,
     BadMiddlewareException, ControllerNotFoundException,
     ContextProcessorNotFoundException, URLBadformedException,
-    ConfigModuleImportException, TemplatePathException)
+    ConfigModuleImportException, TemplatePathException, InvalidRenderException)
 from agiliza.core.utils.imports import import_object
 from agiliza.core.utils.patterns import Singleton
 from agiliza.renders import Jinja2Render
@@ -84,10 +84,13 @@ class ConfigRunner(Singleton):
             self.urls = self._get_url_list(urls_module.url_patterns)
         except AttributeError:
             raise ConfigModuleImportException(
-                "'config' module has not 'config.urls' submodule"
+                "'%s' module has not 'url_patterns' attribute" %
+                    urls_module_name
             )
         except ImportError as error:
-            raise ConfigModuleImportException(error)
+            raise ConfigModuleImportException(
+                "'config' module has not 'config.urls' submodule: %s" % error
+            )
 
 
     def _get_templates_info(self, config_module):
@@ -104,9 +107,13 @@ class ConfigRunner(Singleton):
         template_render = templates.get('render', Jinja2Render)
 
         if isinstance(template_render, str):
-            template_render = import_object(middleware_name)
-        elif not callable(template_render):
-            raise
+            try:
+                template_render = import_object(template_render)
+            except ImportError as error:
+                raise InvalidRenderException(error)
+
+        if not callable(template_render):
+            raise InvalidRenderException("render must be callable")
 
         return template_dir, template_render
 
@@ -126,11 +133,6 @@ class ConfigRunner(Singleton):
                     "'%s' application must be a module or a string" % app_name
                 )
 
-            if getattr(app, 'config', None) is None:
-                raise BadApplicationConfigurationException(
-                    "'%s' application does not have a config module" % app_name
-                )
-
             installed_apps.append(app)
 
         return tuple(installed_apps)
@@ -138,7 +140,7 @@ class ConfigRunner(Singleton):
 
     def _get_settings(self, config_module):
         full_settings = {}
-        for installed_app in config_module.installed_apps:
+        for installed_app in self.installed_apps:
             app_config = getattr(installed_app, 'config', None)
             if app_config is not None:
                 app_settings = getattr(app_config, 'settings', None)
