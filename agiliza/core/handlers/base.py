@@ -20,6 +20,7 @@ Copyright (c) 2012 Alvaro Hurtado <alvarohurtado84@gmail.com>
 """
 import re
 import os
+from http.cookies import SimpleCookie
 
 from agiliza import http
 from agiliza.core.config import ConfigRunner
@@ -61,6 +62,9 @@ class Handler(object):
         #
         # Execute controller
         #
+        cookies = SimpleCookie()
+        url_controller.cookies = cookies
+
         response = url_controller.dispatch(
             request=request,
             params=params
@@ -121,6 +125,8 @@ class Handler(object):
                 content = self.render(template_name, context_data),
                 content_type = accept[0]
             )
+
+        response.cookies = cookies
 
         #
         # Execute level-0 Middlewares OUT

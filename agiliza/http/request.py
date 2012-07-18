@@ -115,6 +115,7 @@ class HttpRequest(object):
         self._stream = self.meta['wsgi.input']
 
         self.cookies = SimpleCookie()
+        self.cookies.load(self.meta.get('HTTP_COOKIE', ''))
 
     def is_secure(self):
         return 'wsgi.url_scheme' in self.meta \
