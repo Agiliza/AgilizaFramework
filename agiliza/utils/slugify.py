@@ -17,3 +17,21 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Álvaro Hurtado <alvarohurtado84@gmail.com>
 """
+
+import htmlentitydefs, re
+ 
+def slugify(text, separator="-"):
+    ret = ""
+    for c in text.lower():
+        try:
+            ret += htmlentitydefs.codepoint2name[ord(c)]
+        except:
+            ret += c
+     
+    ret = re.sub("([a-zA-Z])(uml|acute|grave|circ|tilde|cedil)", r"\1", ret)
+    ret = ret.strip()
+    ret = re.sub(" ", "_", ret)
+    ret = re.sub("\W", "", ret)
+    ret = re.sub("[ _]+", separator, ret)
+     
+    return ret.strip()
