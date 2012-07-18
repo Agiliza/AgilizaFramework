@@ -86,7 +86,7 @@ class HttpRequest(object):
 
     def __init__(self, environ):
         """Wrap a WSGI environ dictionary."""
-        self.meta = environ
+        self.meta = environ.copy()
         self.method = self.meta['REQUEST_METHOD'].upper()
         self.path_info = '/' + self.meta.get('PATH_INFO', '')\
             .lstrip('/')
@@ -108,6 +108,15 @@ class HttpRequest(object):
         accept_hdr = self.meta.get('HTTP_ACCEPT', 'text/html') # TODO settings
         self.accept = parse_accept_header(accept_hdr)
         self._stream = self.meta['wsgi.input']
+
+        environ['QUERY_STRING'] = ''
+        post = cgi.FieldStorage(
+            fp=environ['wsgi.input'],
+            environ=environ['wsgi.input'],
+            keep_blank_values=True
+        )
+
+
         self.cookies = SimpleCookie()
         # Cached values
         self._host = None
