@@ -62,7 +62,7 @@ class ServingFilesMiddleware(object):
         }
 
     def process_request(self, request):
-        for url, base_path in self.paths:
+        for url, base_path in self.paths.items():
             if request.path_info.startswith(url):
                 resource = request.path_info.replace(url, '', 1)
                 file_path = os.path.join(base_path, resource)
