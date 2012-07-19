@@ -98,6 +98,9 @@ class Session(SessionBase):
     def __getattr__(self, name):
         return getattr(self._data, name)
 
+    def __delitem__(self, name):
+        return del self._data[name]
+
     def get_cookie(self):
         sid = self._data['sid']
         cookie_data = self._data['cookie']
