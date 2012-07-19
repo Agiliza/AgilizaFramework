@@ -145,3 +145,4 @@ class SessionMiddleware(object):
             response.set_cookies(session.get_cookie())
         # Save the changes on server
         session.save()
+        

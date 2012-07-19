@@ -30,7 +30,9 @@ from agiliza.config import settings
 class Session(object):
     def __init__(self, cookie, sid=None):
         if not sid:
-            sid = self.get_identifier()
+            session_id = self.get_identifier()
+        else:
+            session_id = sid
 
         try:
             session_dir = settings['sessions']['directory']
@@ -48,13 +50,15 @@ class Session(object):
                     "%s: Error trying to create the session directory" % error
                 )
 
-        session_file = os.path.join(session_dir, sid)
+        session_file = os.path.join(session_dir, session_id)
         self._data = shelve.open(session_file, writeback=session_writeback)
 
-        self._data.update({
-            'sid': sid,
-            'cookie': { k:v for k,v in cookie['sid'].items() }
-        })
+
+        if not sid:
+            self._data.update({
+                'sid': session_id,
+                'cookie': { k:v for k,v in cookie['sid'].items() }
+            })
         
 
         os.chmod(session_file+".db", 0o660)
