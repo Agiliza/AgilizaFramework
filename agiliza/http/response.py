@@ -103,7 +103,10 @@ class HttpResponse(metaclass=abc.ABCMeta):
         else:
             self.content_type = 'text/html'  # TODO settings
 
-        content_type = "%s; charset=%s" % (self.content_type, self.charset)
+        if type(content) == str:
+            content_type = "%s; charset=%s" % (self.content_type, self.charset)
+        else:
+            content_type = self._content_type
         # Setting header Content-Type
         self['Content-Type'] = content_type
 
@@ -134,7 +137,11 @@ class HttpResponse(metaclass=abc.ABCMeta):
 
     @property
     def content(self):
-        return [ self._content.encode(self.charset) ]
+        if type(self._content) == str:
+            content = self._content.encode(self.charset)
+        else:
+            content = self._content
+        return [ content ]
 
     def __setitem__(self, header, value):
         self._headers[header.lower()] = (header, value)
