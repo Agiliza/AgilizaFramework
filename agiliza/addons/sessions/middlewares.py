@@ -19,7 +19,7 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
 from http.cookies import SimpleCookie
 
-from agiliza.addons.sessions.base import Session
+from agiliza.addons.sessions import Session
 from agiliza.addons.sessions.exceptions import InvalidSessionSettingsException
 from agiliza.config import settings
 from agiliza.core.utils.decorators import cached_property
