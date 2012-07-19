@@ -68,8 +68,8 @@ class ServingFilesMiddleware(object):
                 file_path = os.path.join(base_path, resource)
                 if os.path.isfile(file_path):
                         response = HttpResponseNotFound()
-                        respose.status_code = 200
-                        respose.status_text = 'OK'
+                        response.status_code = 200
+                        response.status_text = 'OK'
 
                         data = self.get_file(file_path)
                         response.set_content(
