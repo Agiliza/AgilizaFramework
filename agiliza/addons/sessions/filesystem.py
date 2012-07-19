@@ -72,8 +72,8 @@ class Session(SessionBase):
     def __setitem__(self, key, value):
         self._data[key] = value
 
-    def __getattr__(self, name):
-        return getattr(self._data, name)
+    def __contains__(self, ele):
+        return ele in self._data
 
     def __delitem__(self, name):
         del self._data[name]
