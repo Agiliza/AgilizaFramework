@@ -122,7 +122,7 @@ class ConfigRunnerTest(unittest.TestCase):
         config = ConfigRunner()
 
         self.assertEqual(
-            config.templates, '/',
+            config.templates['directory'], '/',
             "ConfigRunner does not load template directory"
         )
 

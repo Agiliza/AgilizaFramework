@@ -46,45 +46,64 @@ class ConfigRunner(Singleton):
         except ImportError as error:
             raise ConfigModuleImportException(error)
 
+        self._internal = {
+            'debug': False,
+            'media_root': None,
+            'media_url': '/media/',
+            'static_root': None,
+            'static_url': '/static/',
+            'installed_apps': (),
+            'middleware_level0': (),
+            'middleware_level1': (),
+            'urls': (),
+            'templates': {
+                'directory': None,
+                'render': Jinja2Render,
+            }
+        }
+
         # Load templates info
-        self.templates, self.template_render = self._get_templates_info(
-            config_module
-        )
+        templates = self._get_templates_info(config_module)
+        self._internal.update({'templates': templates})
 
         # Load installed apps
         try:
-            self.installed_apps = self._get_installed_apps(
+            installed_apps = self._get_installed_apps(
                 config_module.installed_apps
             )
+            self._internal.update({'installed_apps': installed_apps})
         except AttributeError:
-            self.installed_apps = ()
+            pass
 
         # Load settings
         self.settings = self._get_settings(config_module)
 
         # Load middleware level0
         try:
-            self.middleware_level0 = self._get_middleware_list(
+            middleware_level0 = self._get_middleware_list(
                 config_module.middleware_level0,
                 ('process_request', 'process_response'),
             )
+            self._internal.update({'middleware_level0': middleware_level0})
         except AttributeError:
-            self.middleware_level0 = ()
+            pass
 
         # Load middleware level1
         try:
-            self.middleware_level1 = self._get_middleware_list(
+            middleware_level1 = self._get_middleware_list(
                 config_module.middleware_level1,
                 ('process_controller', 'process_controller_response'),
             )
+            self._internal.update({'middleware_level1': middleware_level1})
         except AttributeError:
-            self.middleware_level1 = ()
+            pass
 
         # Load urls
         try:
             urls_module_name = '%s.urls' % config_module_name
             urls_module = importlib.import_module(urls_module_name)
-            self.urls = self._get_url_list(urls_module.url_patterns)
+            urls = self._get_url_list(urls_module.url_patterns)
+            self._internal.update({'urls': urls})
         except AttributeError:
             raise ConfigModuleImportException(
                 "'%s' module has not 'url_patterns' attribute" %
@@ -100,25 +119,27 @@ class ConfigRunner(Singleton):
         templates = getattr(config_module, 'templates', {})
         assert type(templates) == dict, "templates must be an dictionary"
 
-        template_dir = templates.get('directory')
+        directory = templates.get('directory')
+        if directory is not None:
+            if not os.path.exists(directory):
+                raise TemplatePathException(
+                    "Template path '%s' does not exist" % directory
+                )
 
-        if not os.path.exists(template_dir):
-            raise TemplatePathException(
-                "Template path '%s' does not exist" % template_dir
-            )
+        render = templates.get('render', Jinja2Render)
 
-        template_render = templates.get('render', Jinja2Render)
-
-        if isinstance(template_render, str):
+        if isinstance(render, str):
             try:
-                template_render = import_object(template_render)
+                render = import_object(render)
             except ImportError as error:
                 raise InvalidRenderException(error)
 
-        if not callable(template_render):
+        if not callable(render):
             raise InvalidRenderException("render must be callable")
+        else:
+            templates['render'] = render
 
-        return template_dir, template_render
+        return templates
 
 
     def _get_installed_apps(self, config_installed_apps):
@@ -234,3 +255,11 @@ class ConfigRunner(Singleton):
             ))
 
         return tuple(urls)
+
+    def __getattr__(self, name):
+        try:
+            attr = self._internal[name]
+        except KeyError:
+            raise AttributeError(name)
+
+        return attr

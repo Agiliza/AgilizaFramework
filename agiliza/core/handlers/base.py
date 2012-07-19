@@ -29,8 +29,8 @@ from agiliza.core.config import ConfigRunner
 class Handler(object):
     def __init__(self):
         self.config = ConfigRunner()
-        Render = self.config.template_render
-        self.render = Render(self.config.templates).render
+        Render = self.config.templates['render']
+        self.render = Render(self.config.templates['directory']).render
 
     def dispatch(self, request):
         """Returns an Response object for the given Request."""
@@ -105,7 +105,7 @@ class Handler(object):
                 else:
                     template_name = url_name + "." + accept_subtype
 
-                template_path = self.config.templates + template_name
+                template_path = self.config.templates['directory'] + template_name
 
                 if os.path.isfile(template_path):
                     any_accepted = True
