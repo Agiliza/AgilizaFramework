@@ -67,7 +67,7 @@ class ServingFilesMiddleware(object):
                 resource = request.path_info.replace(url, '', 1)
                 file_path = os.path.join(base_path, resource)
                 if os.path.isfile(file_path):
-                        response = Http404()
+                        response = HttpResponseNotFound()
                         respose.status_code = 200
                         respose.status_text = 'OK'
 
