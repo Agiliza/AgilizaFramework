@@ -33,11 +33,13 @@ class ServingFilesMiddleware(object):
         # Media files
         media_url = settings.get('media_url')
         media_root = settings.get('media_root')
-        path_info.update({ media_url: media_root })
+        if media_url and media_root:
+            path_info.update({ media_url: media_root })
         # Static files
         static_url = settings.get('static_url')
         static_root = settings.get('static_root')
-        path_info.update({ static_url: static_root })
+        if static_url and static_root:
+            path_info.update({ static_url: static_root })
 
         return path_info
 
