@@ -49,49 +49,49 @@ class SessionMiddleware(object):
 
             return expires_func or expires
         return ''
-    
+
     @cached_property
     def path(self):
         session_settings = settings.get('sessions')
         if session_settings is not None:
             return session_settings.get('path', '') or ''
         return ''
-    
+
     @cached_property
     def comment(self):
         session_settings = settings.get('sessions')
         if session_settings is not None:
             return session_settings.get('comment', '') or ''
         return ''
-    
+
     @cached_property
     def domain(self):
         session_settings = settings.get('sessions')
         if session_settings is not None:
             return session_settings.get('domain', '') or ''
         return ''
-    
+
     @cached_property
     def max_age(self):
         session_settings = settings.get('sessions')
         if session_settings is not None:
             return session_settings.get('max_age', '') or ''
         return ''
-    
+
     @cached_property
     def secure(self):
         session_settings = settings.get('sessions')
         if session_settings is not None:
             return session_settings.get('secure', '') or ''
         return ''
-            
+
     @cached_property
     def version(self):
         session_settings = settings.get('sessions')
         if session_settings is not None:
             return session_settings.get('version', '') or ''
         return ''
-    
+
     @cached_property
     def httponly(self):
         session_settings = settings.get('sessions')
@@ -103,11 +103,14 @@ class SessionMiddleware(object):
         # Retrive the session cookie
         sid = request.cookies.get('sid')
         if sid: # Retrieve a previous session
-            session_cookie = SimpleCookie() # Just 'sid' cookie
-            session_cookie['sid'] = request.cookies['sid'].value
-            session_cookie['sid'].update(request.cookies['sid'])
-            session = Session(request.cookies, request.cookies['sid'].value)
+            #session_cookie = SimpleCookie() # Just 'sid' cookie
+            #session_cookie['sid'] = request.cookies['sid'].value
+            #session_cookie['sid'].update(request.cookies['sid'])
+            #session = Session(request.cookies, request.cookies['sid'].value)
+            sid = request.cookies['sid'].value
+            session_cookie = request.cookies
         else: # New session
+            sid = None
             session_cookie = SimpleCookie()
             session_cookie['sid'] = ''
             if self.expires:
@@ -119,9 +122,9 @@ class SessionMiddleware(object):
             session_cookie['sid']['secure'] = self.secure
             session_cookie['sid']['version'] = self.version
             session_cookie['sid']['httponly'] = self.httponly
-            session = Session(session_cookie)
-        
-        #session = Session(sid)
+            #session = Session(session_cookie)
+
+        session = Session(session_cookie, sid)
         # Link the session to request
         request.session = session
 
@@ -145,4 +148,4 @@ class SessionMiddleware(object):
             response.set_cookies(session.get_cookie())
         # Save the changes on server
         session.save()
-        
+

@@ -20,7 +20,6 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 import shelve
 import uuid
 import os
-
 from http.cookies import SimpleCookie
 
 from agiliza.addons.sessions.exceptions import InvalidSessionSettingsException
@@ -51,6 +50,10 @@ class Session(object):
                 )
 
         session_file = os.path.join(session_dir, session_id)
+        if sid and not os.path.isfile(session_file):
+            # It requests a session that it does not exist, so we create a new one
+            session_id = self.get_identifier()
+
         self._data = shelve.open(session_file, writeback=session_writeback)
 
 
@@ -59,7 +62,7 @@ class Session(object):
                 'sid': session_id,
                 'cookie': { k:v for k,v in cookie['sid'].items() }
             })
-        
+
 
         os.chmod(session_file+".db", 0o660)
 
@@ -68,10 +71,10 @@ class Session(object):
 
     def __setitem__(self, key, value):
         self._data[key] = value
-        
+
     def get_identifier(self):
         return str(uuid.uuid1())
-        
+
     def get_cookie(self):
         sid = self._data['sid']
         cookie_data = self._data['cookie']
