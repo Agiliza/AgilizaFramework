@@ -1,13 +1,13 @@
 IDEAS
 =====
 
-Parseo de HttpRequest usando Mixin:
+- Parseo de HttpRequest usando Mixin:
 	http://werkzeug.pocoo.org/docs/wrappers/
 
-Registro de modelos:
+- Registro de modelos:
 	https://github.com/stanislavfeldman/kiss.py
 
-Plantillas para los errores (4xx y 5xx)
+- Plantillas para los errores (4xx y 5xx)
 
 
 PARA REPENSAR
@@ -15,3 +15,7 @@ PARA REPENSAR
 - Problema de los controladores a la hora de crear objetos (put ó post) que no
   reciben parámetro (action del formulario con Javascript?)
     http://guides.rubyonrails.org/routing.html
+
+- Respuestas de los middlewares
+
+- Managers/ORM
