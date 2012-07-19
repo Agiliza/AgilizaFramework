@@ -101,6 +101,7 @@ class HttpRequest(object):
         content_type = self.meta.get('CONTENT_TYPE', '')
         self.content_type, pdict = cgi.parse_header(content_type)
         self.charset = pdict.get('charset', 'utf-8') # TODO settings
+        self.boundary = pdict.get('boundary', '')
         try:
             self.content_length = int(
                 self.meta.get('CONTENT_LENGTH', 0))
@@ -168,21 +169,12 @@ class HttpRequest(object):
 
     @cached_property
     def data(self):
+
         return cgi.FieldStorage(
             fp=self._stream,
             environ=self.meta,
             keep_blank_values=True
         )
-
-    @cached_property
-    def files(self):
-        data = self.data
-
-        return {
-            key: value
-            for key, value in data.items()
-            if value.file
-        }
 
     def __str__(self):
         return 'HttpRequest <%s %s HTTP/%s>' % (
