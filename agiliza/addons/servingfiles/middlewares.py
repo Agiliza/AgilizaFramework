@@ -57,8 +57,8 @@ class ServingFilesMiddleware(object):
             'content': data,
         }
 
-    #def process_request(self, request):
-    #    pass
+    def process_request(self, request):
+        pass
 
     def process_response(self, request, response):
         if isinstance(response, HttpResponseNotFound):
