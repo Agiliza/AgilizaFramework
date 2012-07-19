@@ -58,19 +58,14 @@ class ServingFilesMiddleware(object):
         }
 
     def process_request(self, request):
-        pass
-
-    def process_response(self, request, response):
-        if isinstance(response, HttpResponseNotFound):
-            return
-
         for url, base_path in self.paths:
             if request.path_info.startswith(url):
                 resource = request.path_info.replace(url, '', 1)
                 file_path = os.path.join(base_path, resource)
                 if os.path.isfile(file_path):
-                        respose.status_code = 404
-                        respose.status_text = 'NOT FOUND'
+                        response = Http404()
+                        respose.status_code = 200
+                        respose.status_text = 'OK'
 
                         data = self.get_file(file_path)
                         response.set_content(
@@ -82,6 +77,9 @@ class ServingFilesMiddleware(object):
                         response['Content-Disposition'] = \
                             'attachment; filename=%s' % data['filename']
 
-                        return
+                        raise response
+
+    def process_response(self, request, response):
+        pass
 
 
