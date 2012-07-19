@@ -87,28 +87,29 @@ class HttpResponse(metaclass=abc.ABCMeta):
 
         # Content-Type
         self.charset = 'utf-8'  # TODO settings
-        if content_type:
-            self.content_type, pdict = cgi.parse_header(content_type)
-            self.charset = pdict.get('charset', self.charset)
-        else:
-            self.content_type = 'text/html'  # TODO settings
-
-        content_type = "%s; charset=%s" % (self.content_type,
-            self.charset)
-        self['Content-Type'] = content_type
-
-        # Content
-        #if isinstance(content, collections.Iterable) and \
-            #not isinstance(content, str):
-            #self._container = content
-            #self._is_string = False
-        #else:
-            #self._container = [content]
-            #self._is_string = True
-        self._content = content
+        self.set_content(content, content_type)
 
         # Cookies
         self._cookies = SimpleCookie()
+
+    def set_content(self, content, content_type=None, content_encoding=None):
+        self._content = content or ''
+
+        if content_type:
+            # Parsing the string
+            self.content_type, pdict = cgi.parse_header(content_type)
+            self.charset = pdict.get('charset', self.charset)
+
+        else:
+            self.content_type = 'text/html'  # TODO settings
+
+        content_type = "%s; charset=%s" % (self.content_type, self.charset)
+        # Setting header Content-Type
+        self['Content-Type'] = content_type
+
+        # Setting header Content-Encoding
+        if content_encoding:
+            self['Content-Encoding'] = content_encoding
 
     def set_cookies(self, cookies):
         self._cookies.load(cookies.output(header=''))
