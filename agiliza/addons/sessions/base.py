@@ -17,16 +17,39 @@ along with Agiliza.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 """
+import abc
 import shelve
-import uuid
 import os
+import uuid
 from http.cookies import SimpleCookie
 
 from agiliza.addons.sessions.exceptions import InvalidSessionSettingsException
 from agiliza.config import settings
 
 
-class Session(object):
+class SessionBase(metaclass=abc.ABCMeta):
+    """
+    This class represent a Session on server-side. A subclass must have
+    like-dict behavior.
+    """
+    @abc.abstractmethod
+    def __init__(self, cookie, sid):
+        pass
+
+    @abc.abstractmethod
+    def get_cookie(self):
+        """Must return a http.cookies.SimpleCookie object"""
+        pass
+
+    @abc.abstractmethod
+    def save(self):
+        pass
+
+    def get_identifier(self):
+        return str(uuid.uuid1())
+
+
+class Session(SessionBase):
     def __init__(self, cookie, sid=None):
         if not sid:
             session_id = self.get_identifier()
@@ -72,8 +95,8 @@ class Session(object):
     def __setitem__(self, key, value):
         self._data[key] = value
 
-    def get_identifier(self):
-        return str(uuid.uuid1())
+    def __getattr__(self, name):
+        return getattr(self._data, name)
 
     def get_cookie(self):
         sid = self._data['sid']
