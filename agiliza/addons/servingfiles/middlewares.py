@@ -20,7 +20,7 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 import mimetypes
 import os
 
-from agiliza.config import settings
+from agiliza.core.config import ConfigRunner
 from agiliza.http import HttpResponseNotFound, HttpResponseOk
 from agiliza.core.utils.decorators import cached_property
 
@@ -28,16 +28,17 @@ from agiliza.core.utils.decorators import cached_property
 class ServingFilesMiddleware(object):
     @cached_property
     def paths(self):
+        config = ConfigRunner()
         path_info = {}
         path_info.update(settings.get('servingfiles', {}))
         # Media files
-        media_url = settings.get('media_url')
-        media_root = settings.get('media_root')
+        media_url = config.media_url
+        media_root = config.media_root
         if media_url and media_root:
             path_info.update({ media_url: media_root })
         # Static files
-        static_url = settings.get('static_url')
-        static_root = settings.get('static_root')
+        static_url = config.static_url
+        static_root = config.static_root
         if static_url and static_root:
             path_info.update({ static_url: static_root })
 
