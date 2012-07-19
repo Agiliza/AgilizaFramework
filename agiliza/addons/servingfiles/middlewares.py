@@ -20,8 +20,9 @@ Copyright (c) 2012 Vicente Ruiz <vruiz2.0@gmail.com>
 import mimetypes
 import os
 
-from agiliza.core.config import ConfigRunner
+from agiliza.config import settings
 from agiliza.http import HttpResponseNotFound, HttpResponseOk
+from agiliza.core.config import ConfigRunner
 from agiliza.core.utils.decorators import cached_property
 
 
