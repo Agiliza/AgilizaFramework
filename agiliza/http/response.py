@@ -106,7 +106,7 @@ class HttpResponse(metaclass=abc.ABCMeta):
         if type(content) == str:
             content_type = "%s; charset=%s" % (self.content_type, self.charset)
         else:
-            content_type = self._content_type
+            content_type = self.content_type
         # Setting header Content-Type
         self['Content-Type'] = content_type
 
