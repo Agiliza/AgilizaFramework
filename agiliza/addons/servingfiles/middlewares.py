@@ -51,7 +51,6 @@ class ServingFilesMiddleware(object):
 
         with open(path, 'rb') as f:
             name = f.name
-            encoding = f.encoding
             data = f.read()
 
         return {
