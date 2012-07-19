@@ -49,7 +49,7 @@ class ServingFilesMiddleware(object):
         mimetype, encoding = mimetypes.guess_type(path)
         mimetype = mimetype or 'application/octet-stream'
 
-        with open(fullpath, 'rb') as f:
+        with open(path, 'rb') as f:
             name = f.name
             encoding = f.encoding
             data = f.read()
