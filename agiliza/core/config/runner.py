@@ -66,6 +66,16 @@ class ConfigRunner(Singleton):
         templates = self._get_templates_info(config_module)
         self._internal.update({'templates': templates})
 
+        if hasattr(config_module, 'media_root'):
+            self._internal.update({'media_root': config_module.media_root})
+        if hasattr(config_module, 'media_url'):
+            self._internal.update({'media_url': config_module.media_url})
+
+        if hasattr(config_module, 'static_root'):
+            self._internal.update({'static_root': config_module.static_root})
+        if hasattr(config_module, 'static_url'):
+            self._internal.update({'static_url': config_module.static_url})
+
         # Load installed apps
         try:
             installed_apps = self._get_installed_apps(
