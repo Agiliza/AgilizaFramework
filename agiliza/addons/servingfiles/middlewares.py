@@ -77,8 +77,8 @@ class ServingFilesMiddleware(object):
                             data['encoding'],
                         )
 
-                        response['Content-Disposition'] = \
-                            'attachment; filename=%s' % data['filename']
+                        #response['Content-Disposition'] = \
+                        #    'attachment; filename=%s' % data['filename']
 
                         raise response
 
