@@ -24,6 +24,8 @@ from http.cookies import SimpleCookie
 
 from agiliza import http
 from agiliza.core.config import ConfigRunner
+from agiliza.core.handlers.middleware_context import (MiddlewareLevel0Context,
+    MiddlewareLevel1Context)
 
 
 class Handler(object):
@@ -37,112 +39,81 @@ class Handler(object):
         params = {}
         response = None
 
-        #
-        # Execute level-0 Middlewares IN
-        #
-        for middleware in self.config.middleware_level0:
-            middleware.process_request(request)
-
-        #
-        # Select correct URL
-        #
-        found = False
-        for url in self.config.urls:
-            results = url[0].match(request.path_info)
-            if results is not None:
-                params = results.groupdict()
-                url_regex, url_controller, \
-                    url_context_processors, url_name, url_layout = url
-                found = True
-                break
-
-        if found is False:
-            raise http.HttpResponseNotFound()
-
-        #
-        # Execute controller
-        #
-        cookies = SimpleCookie()
-        url_controller.cookies = cookies
-
-        #
-        # Execute level-1 Middlewares IN
-        #
-        for middleware in self.config.middleware_level1:
-            middleware.process_controller(url_controller, request, params)
-
-        response = url_controller.dispatch(request, params)
-
-        #
-        # Execute level-1 Middlewares OUT
-        #
-        for middleware in self.config.middleware_level1:
-            middleware.process_controller_response(
-                url_controller, request, response
-            )
-
-        if not isinstance(response, http.response.HttpResponse):
-            response_data = response
-            #
-            # Search apropiate template
-            # It is: url_name + [_ + url_layout] + . + accept_subtype
-            #
-            accepts = sorted(
-                [
-                    [key, request.accept[key]]
-                    for key in request.accept.keys()
-                ],
-                key=lambda accept: accept[1],
-                reverse=True
-            )
-
-            any_accepted = None
-            for accept in accepts:
-                accept_subtype = accept[0].split("/")[1]
-                if url_layout:
-                    template_name = url_name + "_" + url_layout + \
-                        "." + accept_subtype
-                else:
-                    template_name = url_name + "." + accept_subtype
-
-                template_path = self.config.templates['directory'] + template_name
-
-                if os.path.isfile(template_path):
-                    any_accepted = True
+        with MiddlewareLevel0Context(request) as middleware0_context:
+            # Select correct URL
+            params = None
+            for url in self.config.urls:
+                regex, controller, context_processors, url_name, layout = url
+                match = regex.match(request.path_info)
+                if match is not None:
+                    params = match.groupdict()
                     break
 
-            if not any_accepted:
-                raise http.HttpResponseUnsupportedMediaType()
+            if params is None:
+                raise http.HttpResponseNotFound()
 
-            #
-            # Execute the necessary context_processors
-            #
-            context_data = {}
-            for context_processor in url_context_processors:
-                context_data.update(
-                    context_processor(
-                        request,
-                        params
-                    )
+            # Preparing the cookies
+            cookies = SimpleCookie()
+            controller.cookies = cookies
+
+            with MiddlewareLevel1Context(controller, request, params) as \
+                middleware1_context:
+                # Execute its controller
+                response = controller.dispatch(request, params)
+                middleware1_context.set_response(response)
+
+
+            if not isinstance(response, http.response.HttpResponse):
+                response_data = response
+                # Search apropiate template
+                # It is: url_name + [_ + layout] + . + accept_subtype
+                accepts = sorted(
+                    [
+                        [key, request.accept[key]]
+                        for key in request.accept.keys()
+                    ],
+                    key=lambda accept: accept[1],
+                    reverse=True
                 )
 
-            #
-            # Render the template with response + request + contexts_info
-            #
-            context_data.update(response_data)
+                any_accepted = None
+                for accept in accepts:
+                    accept_subtype = accept[0].split("/")[1]
+                    if layout:
+                        template_name = url_name + "_" + layout + \
+                            "." + accept_subtype
+                    else:
+                        template_name = url_name + "." + accept_subtype
 
-            response = http.HttpResponseOk(
-                content = self.render(template_name, context_data),
-                content_type = accept[0]
-            )
+                    template_path = self.config.templates['directory'] + template_name
 
-        response.set_cookies(cookies)
+                    if os.path.isfile(template_path):
+                        any_accepted = True
+                        break
 
-        #
-        # Execute level-0 Middlewares OUT
-        #
-        for middleware in self.config.middleware_level0:
-            middleware.process_response(request, response)
+                if not any_accepted:
+                    raise http.HttpResponseUnsupportedMediaType()
+
+                # Execute the necessary context_processors
+                context_data = {}
+                for context_processor in context_processors:
+                    context_data.update(
+                        context_processor(
+                            request,
+                            params
+                        )
+                    )
+
+                # Render the template with response + request + contexts_info
+                context_data.update(response_data)
+
+                response = http.HttpResponseOk(
+                    content = self.render(template_name, context_data),
+                    content_type = accept[0]
+                )
+
+            response.set_cookies(cookies)
+            middleware0_context.set_response(response)
 
         return response
 
