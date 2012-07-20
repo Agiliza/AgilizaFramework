@@ -61,12 +61,14 @@ class ServingFilesMiddleware(object):
         }
 
     def process_request(self, request):
+        pass
+
+    def process_response(self, request, response):
         for url, base_path in self.paths.items():
             if request.path_info.startswith(url):
                 resource = request.path_info.replace(url, '', 1)
                 file_path = os.path.join(base_path, resource)
                 if os.path.isfile(file_path):
-                        response = HttpResponseNotFound()
                         response.status_code = 200
                         response.status_text = 'OK'
 
@@ -77,12 +79,6 @@ class ServingFilesMiddleware(object):
                             data['encoding'],
                         )
 
-                        #response['Content-Disposition'] = \
-                        #    'attachment; filename=%s' % data['filename']
-
-                        raise response
-
-    def process_response(self, request, response):
-        pass
+                        return
 
 
