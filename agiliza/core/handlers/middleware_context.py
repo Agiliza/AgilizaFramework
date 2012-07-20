@@ -29,17 +29,17 @@ class MiddlewareLevel0Context(object):
 
     def __enter__(self):
         for middleware in self.config.middleware_level0:
-            middleware.process_request(self.request)
+            if hasattr(middleware, 'process_request'):
+                middleware.process_request(self.request)
         return self
 
     def __exit__(self, type, value, traceback):
-        print(type, value)
         if isinstance(value, HttpResponseException):
-            print('******'*5)
             self.response = value
 
         for middleware in self.config.middleware_level0:
-            middleware.process_response(self.request, self.response)
+            if hasattr(middleware, 'process_response'):
+                middleware.process_response(self.request, self.response)
 
     def set_response(self, response):
         self.response = response
@@ -53,20 +53,21 @@ class MiddlewareLevel1Context(object):
 
     def __enter__(self):
         for middleware in self.config.middleware_level1:
-            middleware.process_controller(
-                self.controller, self.request, self.params
-            )
+            if hasattr(middleware, 'process_controller'):
+                middleware.process_controller(
+                    self.controller, self.request, self.params
+                )
         return self
 
     def __exit__(self, type, value, traceback):
-        print(type, value)
         if isinstance(value, HttpResponseException):
             self.response = value
 
         for middleware in self.config.middleware_level1:
-            middleware.process_controller_response(
-                self.controller, self.request, self.response
-            )
+            if hasattr(middleware, 'process_controller_response'):
+                middleware.process_controller_response(
+                    self.controller, self.request, self.response
+                )
 
     def set_response(self, response):
         self.response = response

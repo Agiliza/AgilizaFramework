@@ -60,9 +60,6 @@ class ServingFilesMiddleware(object):
             'content': data,
         }
 
-    def process_request(self, request):
-        pass
-
     def process_response(self, request, response):
         for url, base_path in self.paths.items():
             if request.path_info.startswith(url):
