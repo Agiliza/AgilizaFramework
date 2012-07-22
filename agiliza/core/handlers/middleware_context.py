@@ -36,6 +36,8 @@ class MiddlewareLevel0Context(object):
     def __exit__(self, type, value, traceback):
         if isinstance(value, HttpResponseException):
             self.response = value
+        elif value:
+            raise # <-- Reraise the exception
 
         for middleware in self.config.middleware_level0:
             if hasattr(middleware, 'process_response'):
@@ -62,6 +64,8 @@ class MiddlewareLevel1Context(object):
     def __exit__(self, type, value, traceback):
         if isinstance(value, HttpResponseException):
             self.response = value
+        elif value:
+            raise # <-- Reraise the exception
 
         for middleware in self.config.middleware_level1:
             if hasattr(middleware, 'process_controller_response'):
